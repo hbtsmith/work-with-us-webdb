@@ -1,0 +1,121 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  isFirstLogin Boolean @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("admins")
+}
+
+model Job {
+  id          String   @id @default(cuid())
+  title       String
+  description String   @db.Text
+  slug        String   @unique
+  requiresResume Boolean @default(false)
+  isActive    Boolean  @default(true)
+  positionId  String
+  position    Position @relation(fields: [positionId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  questions   Question[]
+  applications Application[]
+
+  @@map("jobs")
+}
+
+model Position {
+  id          String   @id @default(cuid())
+  title       String
+  level       String
+  salaryRange String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  jobs Job[]
+
+  @@map("positions")
+}
+
+model Question {
+  id          String   @id @default(cuid())
+  label       String
+  type        QuestionType
+  isRequired  Boolean  @default(false)
+  order       Int
+  jobId       String
+  job         Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  options     QuestionOption[]
+  answers     Answer[]
+
+  @@map("questions")
+}
+
+model Application {
+  id        String   @id @default(cuid())
+  jobId     String
+  job       Job      @relation(fields: [jobId], references: [id])
+  resumeUrl String?  // Path to uploaded resume file
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  answers   Answer[]
+
+  @@map("applications")
+}
+
+model QuestionOption {
+  id          String   @id @default(cuid())
+  questionId  String
+  question    Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  label       String
+  orderIndex  Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  answers     Answer[]
+
+  @@map("question_options")
+}
+
+model Answer {
+  id                String          @id @default(cuid())
+  textValue         String?         @db.Text
+  questionOptionId  String?
+  questionOption    QuestionOption?  @relation(fields: [questionOptionId], references: [id])
+  applicationId     String
+  application       Application     @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  questionId        String
+  question          Question        @relation(fields: [questionId], references: [id])
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  @@unique([applicationId, questionId])
+  @@map("answers")
+}
+
+enum QuestionType {
+  SHORT_TEXT
+  LONG_TEXT
+  MULTIPLE_CHOICE
+  SINGLE_CHOICE
+}

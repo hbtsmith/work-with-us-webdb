@@ -1,0 +1,290 @@
+{
+  "errors": {
+    "auth": {
+      "invalid_credentials": "Credenciais inválidas",
+      "unauthorized": "Não autorizado",
+      "token_expired": "Token expirado",
+      "token_invalid": "Token inválido",
+      "password_change_failed": "Falha ao alterar senha",
+      "current_password_incorrect": "Senha atual incorreta",
+      "profile_update_failed": "Falha ao atualizar perfil",
+      "admin_not_found": "Administrador não encontrado"
+    },
+    "position": {
+      "not_found": "Cargo não encontrado",
+      "create_failed": "Falha ao criar cargo",
+      "update_failed": "Falha ao atualizar cargo",
+      "delete_failed": "Falha ao excluir cargo",
+      "fetch_failed": "Falha ao buscar cargos",
+      "in_use": "Não é possível excluir cargo que está sendo usado por vagas"
+    },
+    "job": {
+      "not_found": "Vaga não encontrada",
+      "not_found_or_inactive": "Vaga não encontrada ou inativa",
+      "create_failed": "Falha ao criar vaga",
+      "update_failed": "Falha ao atualizar vaga",
+      "delete_failed": "Falha ao excluir vaga",
+      "fetch_failed": "Falha ao buscar vagas",
+      "clone_failed": "Falha ao clonar vaga",
+      "toggle_failed": "Falha ao alterar status da vaga",
+      "has_applications": "Não é possível excluir vaga que possui candidaturas",
+      "slug_exists": "Slug já existe"
+    },
+    "question": {
+      "not_found": "Pergunta não encontrada",
+      "create_failed": "Falha ao criar pergunta",
+      "update_failed": "Falha ao atualizar pergunta",
+      "delete_failed": "Falha ao excluir pergunta",
+      "has_answers": "Não é possível alterar ou excluir pergunta que possui respostas"
+    },
+    "application": {
+      "not_found": "Candidatura não encontrada",
+      "submit_failed": "Falha ao submeter candidatura",
+      "required_question": "Pergunta obrigatória \"{{question}}\" não foi respondida",
+      "invalid_question": "Pergunta inválida",
+      "delete_failed": "Falha ao excluir candidatura",
+      "get_failed": "Falha ao buscar candidaturas",
+      "fetch_failed": "Falha ao buscar candidaturas",
+      "stats_failed": "Falha ao buscar estatísticas de candidaturas",
+      "resume_required": "Currículo é obrigatório para esta vaga"
+    },
+    "admin": {
+      "dashboard_failed": "Falha ao buscar dados do dashboard",
+      "jobs_fetch_failed": "Falha ao buscar vagas",
+      "stats_failed": "Falha ao buscar estatísticas"
+    },
+    "questionOption": {
+      "not_found": "Opção não encontrada",
+      "create_failed": "Falha ao criar opção",
+      "update_failed": "Falha ao atualizar opção",
+      "delete_failed": "Falha ao excluir opção",
+      "fetch_failed": "Falha ao buscar opções",
+      "reorder_failed": "Falha ao reordenar opções",
+      "has_answers": "Não é possível excluir opção com respostas existentes",
+      "label_required": "Label é obrigatório"
+    },
+    "validation": {
+      "error": "Erro de Validação",
+      "invalid_input": "Dados de entrada inválidos",
+      "invalid_body": "Corpo da requisição inválido",
+      "invalid_query": "Parâmetros de consulta inválidos",
+      "invalid_params": "Parâmetros de URL inválidos",
+      "required": "Campo obrigatório",
+      "invalid_email": "Email inválido",
+      "invalid_password": "Senha deve ter pelo menos 6 caracteres",
+      "invalid_slug": "Slug deve conter apenas letras minúsculas, números e hífens",
+      "invalid_question_type": "Tipo de pergunta inválido",
+      "invalid_question_options": "Opções de pergunta inválidas",
+      "current_password_required": "Senha atual é obrigatória",
+      "new_password_invalid": "Nova senha deve ter pelo menos 6 caracteres",
+      "title_required": "Título é obrigatório",
+      "title_too_long": "Título muito longo",
+      "level_required": "Nível é obrigatório",
+      "level_too_long": "Nível muito longo",
+      "salary_range_required": "Faixa salarial é obrigatória",
+      "salary_range_too_long": "Faixa salarial muito longa",
+      "option_label_required": "Rótulo da opção é obrigatório",
+      "option_value_required": "Valor da opção é obrigatório",
+      "question_label_required": "Rótulo da pergunta é obrigatório",
+      "label_too_long": "Rótulo muito longo",
+      "order_non_negative": "Ordem deve ser não negativa",
+      "description_required": "Descrição é obrigatória",
+      "description_too_long": "Descrição muito longa",
+      "slug_required": "Slug é obrigatório",
+      "slug_too_long": "Slug muito longo",
+      "invalid_position_id": "ID de cargo inválido",
+      "invalid_question_id": "ID de pergunta inválido",
+      "answer_required": "Resposta é obrigatória",
+      "at_least_one_answer": "Pelo menos uma resposta é obrigatória",
+      "recaptcha_token_required": "Token reCAPTCHA é obrigatório"
+    },
+    "dashboard": {
+      "fetch_failed": "Falha ao buscar dados do dashboard",
+      "data_sources_failed": "Uma ou mais fontes de dados falharam ao carregar",
+      "stats_failed": "Falha ao buscar estatísticas do dashboard"
+    },
+    "error_classes": {
+      "bad_request": "Requisição inválida",
+      "conflict": "Conflito com o estado atual do recurso",
+      "forbidden": "Acesso negado",
+      "not_found": "Recurso não encontrado",
+      "unauthorized": "Não autorizado",
+      "validation_error": "Dados de entrada inválidos"
+    },
+    "general": {
+      "internal_error": "Erro interno do servidor",
+      "not_found": "Recurso não encontrado",
+      "forbidden": "Acesso negado",
+      "bad_request": "Requisição inválida",
+      "database_error": "Erro no banco de dados",
+      "file_upload_failed": "Falha no upload do arquivo",
+      "invalid_file_type": "Tipo de arquivo inválido",
+      "file_too_large": "Arquivo muito grande",
+      "unknown_error": "Erro desconhecido",
+      "conflict": "Conflito",
+      "record_exists": "Um registro com essas informações já existe",
+      "record_not_found": "Registro não encontrado",
+      "processing_error": "Ocorreu um erro ao processar sua solicitação",
+      "unexpected_error": "Ocorreu um erro inesperado"
+    }
+  },
+  "success": {
+    "auth": {
+      "login": "Login realizado com sucesso",
+      "password_changed": "Senha alterada com sucesso",
+      "profile_updated": "Perfil atualizado com sucesso"
+    },
+    "position": {
+      "created": "Cargo criado com sucesso",
+      "updated": "Cargo atualizado com sucesso",
+      "deleted": "Cargo excluído com sucesso"
+    },
+    "job": {
+      "created": "Vaga criada com sucesso",
+      "updated": "Vaga atualizada com sucesso",
+      "deleted": "Vaga excluída com sucesso",
+      "cloned": "Vaga clonada com sucesso",
+      "activated": "Vaga ativada com sucesso",
+      "deactivated": "Vaga desativada com sucesso"
+    },
+    "question": {
+      "created": "Pergunta criada com sucesso",
+      "updated": "Pergunta atualizada com sucesso",
+      "deleted": "Pergunta excluída com sucesso"
+    },
+    "application": {
+      "submitted": "Candidatura enviada com sucesso",
+      "deleted": "Candidatura excluída com sucesso"
+    },
+    "general": {
+      "operation_successful": "Operação realizada com sucesso"
+    },
+    "dashboard": {
+      "data_loaded": "Dados do dashboard carregados com sucesso",
+      "stats_loaded": "Estatísticas carregadas com sucesso"
+    }
+  },
+  "validation": {
+    "email": {
+      "required": "Email é obrigatório",
+      "invalid": "Email deve ter um formato válido"
+    },
+    "password": {
+      "required": "Senha é obrigatória",
+      "min_length": "Senha deve ter pelo menos {{min}} caracteres",
+      "current_required": "Senha atual é obrigatória",
+      "new_required": "Nova senha é obrigatória"
+    },
+    "title": {
+      "required": "Título é obrigatório",
+      "min_length": "Título deve ter pelo menos {{min}} caracteres",
+      "max_length": "Título deve ter no máximo {{max}} caracteres"
+    },
+    "description": {
+      "required": "Descrição é obrigatória",
+      "min_length": "Descrição deve ter pelo menos {{min}} caracteres"
+    },
+    "slug": {
+      "required": "Slug é obrigatório",
+      "invalid": "Slug deve conter apenas letras minúsculas, números e hífens",
+      "min_length": "Slug deve ter pelo menos {{min}} caracteres",
+      "max_length": "Slug deve ter no máximo {{max}} caracteres"
+    },
+    "level": {
+      "required": "Nível é obrigatório",
+      "invalid": "Nível deve ser um dos valores válidos"
+    },
+    "salary_range": {
+      "required": "Faixa salarial é obrigatória"
+    },
+    "question": {
+      "label_required": "Label da pergunta é obrigatório",
+      "type_required": "Tipo da pergunta é obrigatório",
+      "type_invalid": "Tipo de pergunta inválido",
+      "order_required": "Ordem da pergunta é obrigatória",
+      "order_invalid": "Ordem deve ser um número positivo",
+      "options_required": "Opções são obrigatórias para perguntas de múltipla escolha",
+      "options_invalid": "Opções devem ser um array válido"
+    },
+    "answer": {
+      "question_id_required": "ID da pergunta é obrigatório",
+      "value_required": "Resposta é obrigatória",
+      "value_invalid": "Resposta inválida"
+    }
+  },
+  "messages": {
+    "dashboard": {
+      "title": "Dashboard",
+      "total_applications": "Total de Candidaturas",
+      "total_jobs": "Total de Vagas",
+      "total_positions": "Total de Cargos",
+      "recent_applications": "Candidaturas Recentes"
+    },
+    "pagination": {
+      "page": "Página",
+      "limit": "Limite",
+      "total": "Total",
+      "showing": "Mostrando {{start}} a {{end}} de {{total}} resultados"
+    }
+  },
+  "test": {
+    "data": {
+      "admin_email": "test@admin.com",
+      "admin_password": "test123",
+      "position_title": "Test Developer",
+      "position_level": "Mid-level",
+      "position_salary": "R$ 5.000 - R$ 8.000",
+      "job_title": "Test Job",
+      "job_description": "Test job description",
+      "job_slug": "test-job",
+      "question_label": "What is your experience?",
+      "question_label_react": "What is your experience with React?",
+      "question_label_skills": "Select your skills",
+      "question_label_name": "What is your name?",
+      "question_label_experience": "Describe your experience",
+      "question_label_skills_select": "Select your skills",
+      "answer_name": "John Doe",
+      "answer_experience": "I have 5 years of experience in web development.",
+      "answer_skills": "javascript,typescript",
+      "answer_skills_single": "javascript",
+      "applicant_name": "Applicant",
+      "experience_text": "Experience",
+      "new_password": "newpassword123",
+      "old_password": "oldpassword",
+      "wrong_password": "wrongpassword",
+      "new_email": "newemail@admin.com",
+      "only_email": "onlyemail@admin.com",
+      "only_password": "onlypassword123",
+      "frontend_title": "Frontend Developer",
+      "frontend_description": "We are looking for a frontend developer",
+      "backend_title": "Backend Developer",
+      "backend_description": "Backend job",
+      "fullstack_title": "Fullstack Developer",
+      "fullstack_description": "Fullstack job",
+      "senior_title": "Senior Developer",
+      "senior_level": "Senior",
+      "senior_salary": "R$ 10.000 - R$ 15.000",
+      "junior_title": "Junior Developer",
+      "junior_level": "Junior",
+      "junior_salary": "R$ 3.000 - R$ 5.000",
+      "entry_title": "Entry Position",
+      "entry_level": "Entry",
+      "entry_salary": "R$ 2.000 - R$ 4.000",
+      "updated_title": "Updated Title",
+      "updated_description": "Updated description",
+      "cloned_title": "Cloned Job",
+      "cloned_slug": "cloned-job",
+      "original_title": "Original Job",
+      "original_description": "Original Description",
+      "test_question": "Test question",
+      "new_question": "New Q1",
+      "old_question": "Old Q1",
+      "active_job": "Active Job",
+      "inactive_job": "Inactive Job",
+      "resume_filename": "resume.pdf",
+      "resume_content": "test pdf content",
+      "invalid_filename": "resume.txt",
+      "invalid_content": "test text content"
+    }
+  }
+}

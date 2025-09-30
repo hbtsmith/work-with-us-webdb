@@ -1,0 +1,275 @@
+{
+  "errors": {
+    "auth": {
+      "invalid_credentials": "Invalid credentials",
+      "unauthorized": "Unauthorized",
+      "token_expired": "Token expired",
+      "token_invalid": "Invalid token",
+      "password_change_failed": "Failed to change password",
+      "current_password_incorrect": "Current password is incorrect",
+      "profile_update_failed": "Failed to update profile",
+      "admin_not_found": "Admin not found"
+    },
+    "position": {
+      "not_found": "Position not found",
+      "create_failed": "Failed to create position",
+      "update_failed": "Failed to update position",
+      "delete_failed": "Failed to delete position",
+      "fetch_failed": "Failed to fetch positions",
+      "in_use": "Cannot delete position that is being used by jobs"
+    },
+    "job": {
+      "not_found": "Job not found",
+      "not_found_or_inactive": "Job not found or inactive",
+      "create_failed": "Failed to create job",
+      "update_failed": "Failed to update job",
+      "delete_failed": "Failed to delete job",
+      "fetch_failed": "Failed to fetch jobs",
+      "clone_failed": "Failed to clone job",
+      "toggle_failed": "Failed to toggle job status",
+      "has_applications": "Cannot delete job that has applications",
+      "slug_exists": "Slug already exists"
+    },
+    "question": {
+      "not_found": "Question not found",
+      "create_failed": "Failed to create question",
+      "update_failed": "Failed to update question",
+      "delete_failed": "Failed to delete question",
+      "has_answers": "Cannot modify or delete question that has answers"
+    },
+    "application": {
+      "not_found": "Application not found",
+      "submit_failed": "Failed to submit application",
+      "required_question": "Required question \"{{question}}\" was not answered",
+      "invalid_question": "Invalid question",
+      "delete_failed": "Failed to delete application",
+      "get_failed": "Failed to fetch applications",
+      "fetch_failed": "Failed to fetch applications",
+      "stats_failed": "Failed to fetch application statistics",
+      "resume_required": "Resume is required for this job"
+    },
+    "validation": {
+      "error": "Validation Error",
+      "invalid_input": "Invalid input data",
+      "invalid_body": "Invalid request body",
+      "invalid_query": "Invalid query parameters",
+      "invalid_params": "Invalid URL parameters",
+      "required": "Required field",
+      "invalid_email": "Invalid email",
+      "invalid_password": "Password must have at least 6 characters",
+      "invalid_slug": "Slug must contain only lowercase letters, numbers, and hyphens",
+      "invalid_question_type": "Invalid question type",
+      "invalid_question_options": "Invalid question options",
+      "current_password_required": "Current password is required",
+      "new_password_invalid": "New password must have at least 6 characters",
+      "title_required": "Title is required",
+      "title_too_long": "Title too long",
+      "level_required": "Level is required",
+      "level_too_long": "Level too long",
+      "salary_range_required": "Salary range is required",
+      "salary_range_too_long": "Salary range too long",
+      "option_label_required": "Option label is required",
+      "option_value_required": "Option value is required",
+      "question_label_required": "Question label is required",
+      "label_too_long": "Label too long",
+      "order_non_negative": "Order must be non-negative",
+      "description_required": "Description is required",
+      "description_too_long": "Description too long",
+      "slug_required": "Slug is required",
+      "slug_too_long": "Slug too long",
+      "invalid_position_id": "Invalid position ID",
+      "invalid_question_id": "Invalid question ID",
+      "answer_required": "Answer is required",
+      "at_least_one_answer": "At least one answer is required",
+      "recaptcha_token_required": "reCAPTCHA token is required"
+    },
+    "dashboard": {
+      "fetch_failed": "Failed to fetch dashboard data",
+      "data_sources_failed": "One or more data sources failed to load",
+      "stats_failed": "Failed to fetch dashboard statistics"
+    },
+    "error_classes": {
+      "bad_request": "Invalid request",
+      "conflict": "Conflict with current resource state",
+      "forbidden": "Access denied",
+      "not_found": "Resource not found",
+      "unauthorized": "Unauthorized",
+      "validation_error": "Invalid input data"
+    },
+    "general": {
+      "internal_error": "Internal server error",
+      "not_found": "Resource not found",
+      "forbidden": "Access denied",
+      "bad_request": "Invalid request",
+      "database_error": "Database error",
+      "file_upload_failed": "File upload failed",
+      "invalid_file_type": "Invalid file type",
+      "file_too_large": "File too large",
+      "unknown_error": "Unknown error",
+      "conflict": "Conflict",
+      "record_exists": "A record with this information already exists",
+      "record_not_found": "Record not found",
+      "processing_error": "An error occurred while processing your request",
+      "unexpected_error": "An unexpected error occurred"
+    }
+  },
+  "success": {
+    "auth": {
+      "login": "Login successful",
+      "password_changed": "Password changed successfully",
+      "profile_updated": "Profile updated successfully"
+    },
+    "position": {
+      "created": "Position created successfully",
+      "updated": "Position updated successfully",
+      "deleted": "Position deleted successfully"
+    },
+    "job": {
+      "created": "Job created successfully",
+      "updated": "Job updated successfully",
+      "deleted": "Job deleted successfully",
+      "cloned": "Job cloned successfully",
+      "activated": "Job activated successfully",
+      "deactivated": "Job deactivated successfully"
+    },
+    "question": {
+      "created": "Question created successfully",
+      "updated": "Question updated successfully",
+      "deleted": "Question deleted successfully"
+    },
+    "application": {
+      "submitted": "Application submitted successfully",
+      "deleted": "Application deleted successfully"
+    },
+    "general": {
+      "operation_successful": "Operation completed successfully"
+    },
+    "dashboard": {
+      "data_loaded": "Dashboard data loaded successfully",
+      "stats_loaded": "Statistics loaded successfully"
+    }
+  },
+  "validation": {
+    "email": {
+      "required": "Email is required",
+      "invalid": "Email must have a valid format"
+    },
+    "password": {
+      "required": "Password is required",
+      "min_length": "Password must have at least {{min}} characters",
+      "current_required": "Current password is required",
+      "new_required": "New password is required"
+    },
+    "title": {
+      "required": "Title is required",
+      "min_length": "Title must have at least {{min}} characters",
+      "max_length": "Title must have at most {{max}} characters"
+    },
+    "description": {
+      "required": "Description is required",
+      "min_length": "Description must have at least {{min}} characters"
+    },
+    "slug": {
+      "required": "Slug is required",
+      "invalid": "Slug must contain only lowercase letters, numbers, and hyphens",
+      "min_length": "Slug must have at least {{min}} characters",
+      "max_length": "Slug must have at most {{max}} characters"
+    },
+    "level": {
+      "required": "Level is required",
+      "invalid": "Level must be one of the valid values"
+    },
+    "salary_range": {
+      "required": "Salary range is required"
+    },
+    "question": {
+      "label_required": "Question label is required",
+      "type_required": "Question type is required",
+      "type_invalid": "Invalid question type",
+      "order_required": "Question order is required",
+      "order_invalid": "Order must be a positive number",
+      "options_required": "Options are required for multiple choice questions",
+      "options_invalid": "Options must be a valid array"
+    },
+    "answer": {
+      "question_id_required": "Question ID is required",
+      "value_required": "Answer is required",
+      "value_invalid": "Invalid answer"
+    }
+  },
+  "messages": {
+    "dashboard": {
+      "title": "Dashboard",
+      "total_applications": "Total Applications",
+      "total_jobs": "Total Jobs",
+      "total_positions": "Total Positions",
+      "recent_applications": "Recent Applications"
+    },
+    "pagination": {
+      "page": "Page",
+      "limit": "Limit",
+      "total": "Total",
+      "showing": "Showing {{start}} to {{end}} of {{total}} results"
+    }
+  },
+  "test": {
+    "data": {
+      "admin_email": "test@admin.com",
+      "admin_password": "test123",
+      "position_title": "Test Developer",
+      "position_level": "Mid-level",
+      "position_salary": "R$ 5.000 - R$ 8.000",
+      "job_title": "Test Job",
+      "job_description": "Test job description",
+      "job_slug": "test-job",
+      "question_label": "What is your experience?",
+      "question_label_react": "What is your experience with React?",
+      "question_label_skills": "Select your skills",
+      "question_label_name": "What is your name?",
+      "question_label_experience": "Describe your experience",
+      "question_label_skills_select": "Select your skills",
+      "answer_name": "John Doe",
+      "answer_experience": "I have 5 years of experience in web development.",
+      "answer_skills": "javascript,typescript",
+      "answer_skills_single": "javascript",
+      "applicant_name": "Applicant",
+      "experience_text": "Experience",
+      "new_password": "newpassword123",
+      "old_password": "oldpassword",
+      "wrong_password": "wrongpassword",
+      "new_email": "newemail@admin.com",
+      "only_email": "onlyemail@admin.com",
+      "only_password": "onlypassword123",
+      "frontend_title": "Frontend Developer",
+      "frontend_description": "We are looking for a frontend developer",
+      "backend_title": "Backend Developer",
+      "backend_description": "Backend job",
+      "fullstack_title": "Fullstack Developer",
+      "fullstack_description": "Fullstack job",
+      "senior_title": "Senior Developer",
+      "senior_level": "Senior",
+      "senior_salary": "R$ 10.000 - R$ 15.000",
+      "junior_title": "Junior Developer",
+      "junior_level": "Junior",
+      "junior_salary": "R$ 3.000 - R$ 5.000",
+      "entry_title": "Entry Position",
+      "entry_level": "Entry",
+      "entry_salary": "R$ 2.000 - R$ 4.000",
+      "updated_title": "Updated Title",
+      "updated_description": "Updated description",
+      "cloned_title": "Cloned Job",
+      "cloned_slug": "cloned-job",
+      "original_title": "Original Job",
+      "original_description": "Original Description",
+      "test_question": "Test question",
+      "new_question": "New Q1",
+      "old_question": "Old Q1",
+      "active_job": "Active Job",
+      "inactive_job": "Inactive Job",
+      "resume_filename": "resume.pdf",
+      "resume_content": "test pdf content",
+      "invalid_filename": "resume.txt",
+      "invalid_content": "test text content"
+    }
+  }
+}
