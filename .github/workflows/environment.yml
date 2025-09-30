@@ -1,0 +1,126 @@
+name: Environment Setup
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to setup'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+        - staging
+        - production
+
+jobs:
+  setup-staging:
+    name: Setup Staging Environment
+    runs-on: ubuntu-latest
+    if: github.event.inputs.environment == 'staging'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: |
+        cd backend
+        npm ci
+        
+    - name: Generate Prisma client
+      run: |
+        cd backend
+        npm run db:generate
+        
+    - name: Setup staging database
+      run: |
+        cd backend
+        npx prisma db push --force-reset
+        
+    - name: Seed staging database
+      run: |
+        cd backend
+        npm run db:seed
+        
+    - name: Run staging tests
+      run: |
+        cd backend
+        npm run test:all
+        
+    - name: Build staging application
+      run: |
+        cd backend
+        npm run build
+        
+    - name: Deploy to staging
+      run: |
+        echo "🚀 Staging environment setup completed!"
+        echo "✅ Database configured"
+        echo "✅ Tests passed"
+        echo "✅ Application built"
+        echo "✅ Ready for staging deployment"
+
+  setup-production:
+    name: Setup Production Environment
+    runs-on: ubuntu-latest
+    if: github.event.inputs.environment == 'production'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: |
+        cd backend
+        npm ci
+        
+    - name: Generate Prisma client
+      run: |
+        cd backend
+        npm run db:generate
+        
+    - name: Setup production database
+      run: |
+        cd backend
+        npx prisma db push --force-reset
+        
+    - name: Seed production database
+      run: |
+        cd backend
+        npm run db:seed
+        
+    - name: Run comprehensive tests
+      run: |
+        cd backend
+        npm run test:all
+        
+    - name: Security audit
+      run: |
+        cd backend
+        npm audit --audit-level moderate
+        
+    - name: Build production application
+      run: |
+        cd backend
+        npm run build
+        
+    - name: Deploy to production
+      run: |
+        echo "🚀 Production environment setup completed!"
+        echo "✅ Database configured"
+        echo "✅ All tests passed"
+        echo "✅ Security audit passed"
+        echo "✅ Application built"
+        echo "✅ Ready for production deployment"

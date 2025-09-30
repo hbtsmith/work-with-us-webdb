@@ -1,0 +1,45 @@
+version: 2
+updates:
+  # Enable version updates for npm
+  - package-ecosystem: "npm"
+    directory: "/backend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "backend-team"
+    assignees:
+      - "backend-team"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "backend"
+    ignore:
+      # Ignore major version updates for these packages
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+    groups:
+      # Group all dev dependencies together
+      dev-dependencies:
+        patterns:
+          - "@types/*"
+          - "@vitest/*"
+          - "eslint*"
+          - "prettier*"
+          - "typescript"
+        update-types:
+          - "version-update:semver-minor"
+          - "version-update:semver-patch"
+      # Group all test dependencies together
+      test-dependencies:
+        patterns:
+          - "vitest"
+          - "light-my-request"
+          - "supertest"
+        update-types:
+          - "version-update:semver-minor"
+          - "version-update:semver-patch"

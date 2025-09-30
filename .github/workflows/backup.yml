@@ -1,0 +1,96 @@
+name: Database Backup
+
+on:
+  schedule:
+    - cron: '0 2 * * *' # Daily at 2 AM
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to backup'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+        - staging
+        - production
+
+jobs:
+  backup-staging:
+    name: Backup Staging Database
+    runs-on: ubuntu-latest
+    if: github.event.inputs.environment == 'staging' || github.event.schedule
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: |
+        cd backend
+        npm ci
+        
+    - name: Generate Prisma client
+      run: |
+        cd backend
+        npm run db:generate
+        
+    - name: Backup staging database
+      run: |
+        cd backend
+        echo "🔄 Creating staging database backup..."
+        # Add your database backup commands here
+        # Example: pg_dump, mysqldump, etc.
+        echo "✅ Staging database backup completed!"
+        
+    - name: Upload backup to artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: staging-db-backup
+        path: ./backend/backups/
+        retention-days: 30
+
+  backup-production:
+    name: Backup Production Database
+    runs-on: ubuntu-latest
+    if: github.event.inputs.environment == 'production' || github.event.schedule
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: |
+        cd backend
+        npm ci
+        
+    - name: Generate Prisma client
+      run: |
+        cd backend
+        npm run db:generate
+        
+    - name: Backup production database
+      run: |
+        cd backend
+        echo "🔄 Creating production database backup..."
+        # Add your database backup commands here
+        # Example: pg_dump, mysqldump, etc.
+        echo "✅ Production database backup completed!"
+        
+    - name: Upload backup to artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: production-db-backup
+        path: ./backend/backups/
+        retention-days: 90

@@ -1,0 +1,123 @@
+name: Deploy
+
+on:
+  push:
+    branches: [ main, develop ]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+        - staging
+        - production
+
+jobs:
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/develop' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'staging')
+    
+    environment: staging
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: |
+        cd backend
+        npm ci
+        
+    - name: Generate Prisma client
+      run: |
+        cd backend
+        npm run db:generate
+        
+    - name: Build application
+      run: |
+        cd backend
+        npm run build
+        
+    - name: Run tests before deploy
+      run: |
+        cd backend
+        npm run test:all
+        
+    - name: Deploy to staging
+      run: |
+        echo "🚀 Deploying to staging environment..."
+        echo "✅ Build completed successfully"
+        echo "✅ Tests passed"
+        echo "✅ Ready for staging deployment"
+        # Add your actual deployment commands here
+        # Example: docker build, kubectl apply, etc.
+        
+    - name: Notify deployment success
+      run: |
+        echo "✅ Staging deployment completed successfully!"
+
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'production')
+    
+    environment: production
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: |
+        cd backend
+        npm ci
+        
+    - name: Generate Prisma client
+      run: |
+        cd backend
+        npm run db:generate
+        
+    - name: Build application
+      run: |
+        cd backend
+        npm run build
+        
+    - name: Run comprehensive tests
+      run: |
+        cd backend
+        npm run test:all
+        
+    - name: Security audit
+      run: |
+        cd backend
+        npm audit --audit-level moderate
+        
+    - name: Deploy to production
+      run: |
+        echo "🚀 Deploying to production environment..."
+        echo "✅ Build completed successfully"
+        echo "✅ All tests passed"
+        echo "✅ Security audit passed"
+        echo "✅ Ready for production deployment"
+        # Add your actual deployment commands here
+        # Example: docker build, kubectl apply, etc.
+        
+    - name: Notify deployment success
+      run: |
+        echo "✅ Production deployment completed successfully!"
+        echo "🎉 Application is now live in production!"

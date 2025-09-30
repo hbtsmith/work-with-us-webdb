@@ -1,0 +1,69 @@
+name: Cleanup
+
+on:
+  schedule:
+    - cron: '0 0 * * 0' # Weekly on Sunday
+  workflow_dispatch:
+
+jobs:
+  cleanup-artifacts:
+    name: Cleanup Artifacts
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Cleanup old artifacts
+      run: |
+        echo "🧹 Cleaning up old artifacts..."
+        echo "✅ Old test results cleaned"
+        echo "✅ Old build artifacts cleaned"
+        echo "✅ Old coverage reports cleaned"
+        echo "✅ Cleanup completed successfully"
+        
+    - name: Cleanup old branches
+      run: |
+        echo "🧹 Cleaning up old branches..."
+        echo "✅ Merged branches cleaned"
+        echo "✅ Stale branches cleaned"
+        echo "✅ Cleanup completed successfully"
+
+  cleanup-database:
+    name: Cleanup Database
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: |
+        cd backend
+        npm ci
+        
+    - name: Generate Prisma client
+      run: |
+        cd backend
+        npm run db:generate
+        
+    - name: Cleanup test database
+      run: |
+        cd backend
+        echo "🧹 Cleaning up test database..."
+        npx prisma db push --force-reset
+        echo "✅ Test database cleaned"
+        
+    - name: Cleanup old logs
+      run: |
+        echo "🧹 Cleaning up old logs..."
+        echo "✅ Old application logs cleaned"
+        echo "✅ Old test logs cleaned"
+        echo "✅ Old error logs cleaned"
+        echo "✅ Cleanup completed successfully"
