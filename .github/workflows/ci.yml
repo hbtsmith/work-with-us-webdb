@@ -44,7 +44,7 @@ jobs:
     - name: Cache node modules
       uses: actions/cache@v4
       with:
-        path: ~/.npm
+        path: backend/node_modules
         key: ${{ runner.os }}-node-${{ hashFiles('backend/package-lock.json') }}
         restore-keys: |
           ${{ runner.os }}-node-
@@ -124,7 +124,7 @@ jobs:
     - name: Cache node modules
       uses: actions/cache@v4
       with:
-        path: ~/.npm
+        path: backend/node_modules
         key: ${{ runner.os }}-node-${{ hashFiles('backend/package-lock.json') }}
         restore-keys: |
           ${{ runner.os }}-node-
@@ -167,7 +167,7 @@ jobs:
     - name: Cache node modules
       uses: actions/cache@v4
       with:
-        path: ~/.npm
+        path: backend/node_modules
         key: ${{ runner.os }}-node-${{ hashFiles('backend/package-lock.json') }}
         restore-keys: |
           ${{ runner.os }}-node-
