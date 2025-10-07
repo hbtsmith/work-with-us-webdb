@@ -4,25 +4,19 @@
       "es2022": true
     },
     "extends": [
-      "eslint:recommended",
-      "@typescript-eslint/recommended",
-      "prettier"
+      "eslint:recommended"
     ],
     "parser": "@typescript-eslint/parser",
     "parserOptions": {
       "ecmaVersion": "latest",
       "sourceType": "module"
     },
-    "plugins": ["@typescript-eslint", "prettier"],
+    "plugins": ["@typescript-eslint"],
     "rules": {
-      "prettier/prettier": "error",
       "@typescript-eslint/no-unused-vars": "error",
       "@typescript-eslint/no-explicit-any": "warn",
-      "@typescript-eslint/explicit-function-return-type": "off",
-      "@typescript-eslint/explicit-module-boundary-types": "off",
-      "@typescript-eslint/no-inferrable-types": "off",
       "prefer-const": "error",
       "no-var": "error"
     },
-    "ignorePatterns": ["dist/", "node_modules/", "*.js"]
+    "ignorePatterns": ["dist/", "node_modules/", "*.js", "src/tests/", "src/**/*.test.ts", "src/**/*.e2e.test.ts"]
   }

@@ -1,4 +1,4 @@
-import { swaggerSchemas } from './schemas';
+// import { swaggerSchemas } from './schemas';
 
 export const questionOptionsSwaggerDocs = {
   getQuestionOptions: {

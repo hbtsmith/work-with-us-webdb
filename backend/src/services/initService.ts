@@ -16,20 +16,15 @@ export class InitService {
    * If none exists, creates a default admin
    */
   static async ensureAdminExists(): Promise<void> {
-    try {
-      
-      const defaultEmail = process.env['ADMIN_EMAIL'] || 'admin@company.com';
-      
-      // Check if admin with default email exists
-      const existingAdmin = await prisma.admin.findUnique({
-        where: { email: defaultEmail },
-      });
-      
-      if (!existingAdmin) {
-        await this.createDefaultAdmin();
-      }
-    } catch (error) {
-      throw error;
+    const defaultEmail = process.env['ADMIN_EMAIL'] || 'admin@company.com';
+    
+    // Check if admin with default email exists
+    const existingAdmin = await prisma.admin.findUnique({
+      where: { email: defaultEmail },
+    });
+    
+    if (!existingAdmin) {
+      await this.createDefaultAdmin();
     }
   }
 
@@ -65,12 +60,6 @@ export class InitService {
    * Initializes all necessary data
    */
   static async initialize(): Promise<void> {
-
-    
-    try {
-      await this.ensureAdminExists();
-    } catch (error) {
-      throw error;
-    }
+    await this.ensureAdminExists();
   }
 }
