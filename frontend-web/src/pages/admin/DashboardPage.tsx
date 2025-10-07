@@ -80,7 +80,7 @@ export function DashboardPage() {
 
   useEffect(() => {
     fetchDashboardData();
-  }, []); // Run only once on mount
+  }, [fetchDashboardData]); // Include fetchDashboardData dependency
 
   const formatTimeAgo = (timestamp: string) => {
     const now = new Date();

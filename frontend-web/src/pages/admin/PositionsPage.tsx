@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { apiService } from '@/services/api';
 import { Plus, Edit, Trash2, X } from 'lucide-react';
@@ -57,7 +57,7 @@ export function PositionsPage() {
   const [confirmAction, setConfirmAction] = useState<'create' | 'update' | 'delete' | null>(null);
   const [confirmMessage, setConfirmMessage] = useState('');
 
-  const fetchPositions = async () => {
+  const fetchPositions = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -85,11 +85,11 @@ export function PositionsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [pagination.page, pagination.limit, sortBy, sortOrder]);
 
   useEffect(() => {
     fetchPositions();
-  }, [pagination.page, pagination.limit, sortBy, sortOrder]);
+  }, [fetchPositions]);
 
   const handleSort = (field: string) => {
     if (sortBy === field) {

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { apiService } from '@/services/api';
 import { Job, Question, Position } from '@/types';
@@ -113,7 +113,7 @@ export function JobsPage() {
   const [draggedQuestion, setDraggedQuestion] = useState<string | null>(null);
   const [isReordering, setIsReordering] = useState(false);
 
-  const fetchJobs = async () => {
+  const fetchJobs = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -141,11 +141,11 @@ export function JobsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [pagination.page, pagination.limit, sortBy, sortOrder]);
 
   useEffect(() => {
     fetchJobs();
-  }, [pagination.page, pagination.limit, sortBy, sortOrder]);
+  }, [fetchJobs]);
 
   const handleSort = (field: string) => {
     if (sortBy === field) {
@@ -255,7 +255,7 @@ export function JobsPage() {
   };
 
   // Fetch positions for select
-  const fetchPositions = async () => {
+  const fetchPositions = useCallback(async () => {
     try {
       setLoadingPositions(true);
       const response = await apiService.getPositions(1, 100); // Get all positions
@@ -267,7 +267,7 @@ export function JobsPage() {
     } finally {
       setLoadingPositions(false);
     }
-  };
+  }, []);
 
   // Fetch job questions
   const fetchJobQuestions = async (jobId: string) => {
@@ -687,7 +687,7 @@ export function JobsPage() {
     if (isModalOpen) {
       fetchPositions();
     }
-  }, [isModalOpen]);
+  }, [isModalOpen, fetchPositions]);
 
   // Filter positions based on search term
   useEffect(() => {

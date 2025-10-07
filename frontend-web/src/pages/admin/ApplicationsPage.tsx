@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { apiService } from '@/services/api';
 import { Application } from '@/types';
@@ -43,16 +43,8 @@ export function ApplicationsPage() {
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [selectedApplication, setSelectedApplication] = useState<Application | null>(null);
   const [loadingApplication, setLoadingApplication] = useState(false);
-  
-  useEffect(() => {
-    fetchJobs();
-  }, []);
-  
-  useEffect(() => {
-    fetchApplications();
-  }, [pagination.page, selectedJobFilter]);
 
-  const fetchJobs = async () => {
+  const fetchJobs = useCallback(async () => {
     try {
       const response = await apiService.getJobs(1, 100, 'title', 'asc');
       if (response.success) {
@@ -61,9 +53,9 @@ export function ApplicationsPage() {
     } catch (err: any) {
       console.error('Failed to fetch jobs:', err);
     }
-  };
+  }, []);
 
-  const fetchApplications = async () => {
+  const fetchApplications = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -91,7 +83,15 @@ export function ApplicationsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedJobFilter, pagination.page, pagination.limit, t]);
+
+  useEffect(() => {
+    fetchJobs();
+  }, [fetchJobs]);
+  
+  useEffect(() => {
+    fetchApplications();
+  }, [fetchApplications]);
 
   const handleView = async (applicationId: string) => {
     try {

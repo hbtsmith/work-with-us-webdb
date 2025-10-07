@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/hooks/useTranslation';
 import { apiService } from '@/services/api';
@@ -37,25 +37,7 @@ export function ApplicationPage() {
   
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
-  // Force light theme for application page
-  useEffect(() => {
-    const originalTheme = document.documentElement.classList.contains('dark');
-    document.documentElement.classList.remove('dark');
-    
-    return () => {
-      if (originalTheme) {
-        document.documentElement.classList.add('dark');
-      }
-    };
-  }, []);
-
-  useEffect(() => {
-    if (slug) {
-      fetchJob();
-    }
-  }, [slug]);
-
-  const fetchJob = async () => {
+  const fetchJob = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -74,7 +56,25 @@ export function ApplicationPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [slug]);
+
+  // Force light theme for application page
+  useEffect(() => {
+    const originalTheme = document.documentElement.classList.contains('dark');
+    document.documentElement.classList.remove('dark');
+    
+    return () => {
+      if (originalTheme) {
+        document.documentElement.classList.add('dark');
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (slug) {
+      fetchJob();
+    }
+  }, [slug, fetchJob]);
 
   const handleInputChange = (field: keyof ApplicationFormData, value: any) => {
     setFormData(prev => ({
