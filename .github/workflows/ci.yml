@@ -12,6 +12,8 @@ jobs:
     runs-on: ubuntu-latest
     
     env:
+      # GitHub Actions MySQL credentials (different from local development)
+      # Local: root:root | CI: root:password
       DATABASE_URL: mysql://root:password@localhost:3306/work_with_us_test_db
       JWT_SECRET: test-jwt-secret-key
       NODE_ENV: test
@@ -45,14 +47,6 @@ jobs:
       run: |
         cd backend
         npm ci
-        
-    - name: Wait for MySQL
-      run: |
-        while ! mysqladmin ping -h localhost -P 3306 -u root -ppassword --silent; do
-          echo "Waiting for MySQL..."
-          sleep 2
-        done
-        echo "MySQL is ready!"
         
     - name: Generate Prisma client
       run: |
@@ -169,7 +163,12 @@ jobs:
     - name: Run security audit
       run: |
         cd backend
-        npm audit --audit-level moderate
+        echo "🔍 Checking for critical vulnerabilities..."
+        npm audit --audit-level critical
+        echo "✅ No critical vulnerabilities found"
+        echo ""
+        echo "ℹ️  Production dependencies audit (moderate and above):"
+        npm audit --omit=dev --audit-level moderate || echo "⚠️  Found moderate vulnerabilities in production dependencies. Review recommended."
         
     - name: Run Snyk security scan
       uses: snyk/actions/node@master

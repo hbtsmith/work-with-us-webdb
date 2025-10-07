@@ -36,9 +36,19 @@ Sistema de pré-entrevista de emprego desenvolvido com Node.js, Fastify, TypeScr
 
 4. Configure o banco de dados no arquivo `.env`:
    ```env
-   DATABASE_URL="mysql://username:password@localhost:3306/work_with_us_db"
+   # Desenvolvimento Local (MAMP/XAMPP geralmente usa root:root)
+   DATABASE_URL="mysql://root:root@localhost:3306/work_with_us_db"
+   
+   # Produção ou outros ambientes
+   # DATABASE_URL="mysql://username:password@localhost:3306/work_with_us_db"
+   
    JWT_SECRET="your-super-secret-jwt-key-here"
    ```
+   
+   **Nota**: As credenciais do MySQL variam por ambiente:
+   - **MAMP/XAMPP**: geralmente `root:root`
+   - **MySQL padrão**: geralmente `root:password` ou `root:` (sem senha)
+   - **GitHub Actions CI**: `root:password` (configurado no workflow)
 
 5. Execute as migrações do banco:
    ```bash
