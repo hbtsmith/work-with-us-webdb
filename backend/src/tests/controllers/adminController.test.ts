@@ -138,9 +138,14 @@ describe('AdminController', () => {
       expect(mockReply.send).toHaveBeenCalledWith({
         success: true,
         data: {
-          applications: applicationStats,
-          recentJobs: recentJobs,
+          totalJobs: 2,
+          totalApplications: 0,
           totalPositions: 2,
+          recentApplications: [],
+          jobStats: {
+            active: 2,
+            inactive: 0,
+          },
         },
         message: i18n.t('success.dashboard.data_loaded'),
       });
