@@ -1,12 +1,15 @@
 import { Routes, Route } from 'react-router-dom';
-import { LoginPage } from '@/pages/LoginPage';
-import { DashboardPage } from '@/pages/DashboardPage';
-import { PositionsPage } from '@/pages/PositionsPage';
-import { ChangePasswordPage } from '@/pages/ChangePasswordPage';
-import { JobsPage } from '@/pages/JobsPage';
-import { ApplicationsPage } from '@/pages/ApplicationsPage';
-import { ApplicationPage } from '@/pages/ApplicationPage';
-import { ProtectedRoute } from '@/components/ProtectedRoute';
+import { Toaster } from 'react-hot-toast';
+import {
+  LoginPage,
+  DashboardPage,
+  PositionsPage,
+  ChangePasswordPage,
+  JobsPage,
+  ApplicationsPage,
+  ApplicationPage,
+} from '@/pages';
+import { ProtectedRoute } from '@/components';
 import { AuthProvider } from '@/hooks/useAuth';
 import { ThemeProvider } from '@/hooks/useTheme';
 
@@ -60,6 +63,29 @@ function App() {
               />
           </Routes>
         </div>
+        <Toaster
+          position="top-right"
+          toastOptions={{
+            duration: 4000,
+            style: {
+              background: 'var(--bg-primary)',
+              color: 'var(--text-primary)',
+              border: '1px solid var(--border-primary)',
+            },
+            success: {
+              iconTheme: {
+                primary: '#10B981',
+                secondary: '#fff',
+              },
+            },
+            error: {
+              iconTheme: {
+                primary: '#EF4444',
+                secondary: '#fff',
+              },
+            },
+          }}
+        />
       </AuthProvider>
     </ThemeProvider>
   );

@@ -70,7 +70,9 @@ export const applicationsSwaggerDocs = {
               properties: {
                 id: { type: 'string' },
                 jobId: { type: 'string' },
-                submittedAt: { type: 'string' },
+                resumeUrl: { type: 'string', nullable: true },
+                createdAt: { type: 'string', format: 'date-time' },
+                updatedAt: { type: 'string', format: 'date-time' },
                 job: {
                   type: 'object',
                   properties: {
@@ -137,7 +139,9 @@ export const applicationsSwaggerDocs = {
             properties: {
               id: { type: 'string' },
               jobId: { type: 'string' },
-              submittedAt: { type: 'string' },
+              resumeUrl: { type: 'string', nullable: true },
+              createdAt: { type: 'string', format: 'date-time' },
+              updatedAt: { type: 'string', format: 'date-time' },
               job: {
                 type: 'object',
                 properties: {
@@ -162,7 +166,8 @@ export const applicationsSwaggerDocs = {
                   type: 'object',
                   properties: {
                     questionId: { type: 'string' },
-                    value: { type: 'string' },
+                    textValue: { type: 'string', nullable: true },
+                    questionOptionId: { type: 'string', nullable: true },
                     question: {
                       type: 'object',
                       properties: {
@@ -170,8 +175,20 @@ export const applicationsSwaggerDocs = {
                         label: { type: 'string' },
                         type: { type: 'string' },
                         isRequired: { type: 'boolean' },
-                        order: { type: 'number' },
-                        options: { type: 'array' }
+                        order: { type: 'number' }
+                      }
+                    },
+                    questionOption: {
+                      type: 'object',
+                      nullable: true,
+                      properties: {
+                        id: { type: 'string' },
+                        questionId: { type: 'string' },
+                        label: { type: 'string' },
+                        orderIndex: { type: 'number' },
+                        isActive: { type: 'boolean' },
+                        createdAt: { type: 'string', format: 'date-time' },
+                        updatedAt: { type: 'string', format: 'date-time' }
                       }
                     }
                   }
@@ -242,7 +259,9 @@ export const applicationsSwaggerDocs = {
               properties: {
                 id: { type: 'string' },
                 jobId: { type: 'string' },
-                submittedAt: { type: 'string' },
+                resumeUrl: { type: 'string', nullable: true },
+                createdAt: { type: 'string', format: 'date-time' },
+                updatedAt: { type: 'string', format: 'date-time' },
                 answers: {
                   type: 'array',
                   items: {
@@ -320,6 +339,28 @@ export const applicationsSwaggerDocs = {
           }
         }
       },
+      401: swaggerSchemas.ErrorResponse
+    }
+  },
+  
+  downloadResume: {
+    description: 'Download resume file for an application',
+    tags: ['Applications'],
+    security: [{ BearerAuth: [] }],
+    params: {
+      type: 'object',
+      properties: {
+        id: { type: 'string', description: 'Application ID' }
+      },
+      required: ['id']
+    },
+    response: {
+      200: {
+        description: 'Resume file',
+        type: 'string',
+        format: 'binary'
+      },
+      404: swaggerSchemas.ErrorResponse,
       401: swaggerSchemas.ErrorResponse
     }
   }

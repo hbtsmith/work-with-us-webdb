@@ -34,12 +34,18 @@ export class AdminController {
         this.positionService.getAllPositions(),
       ]);
 
+
       return reply.send({
         success: true,
         data: {
-          applications: applicationStats,
-          recentJobs: jobs.data || [],
+          totalJobs: jobs.data?.length || 0,
+          totalApplications: applicationStats.totalApplications || 0,
           totalPositions: positions.length || 0,
+          recentApplications: applicationStats.recentApplications || [],
+          jobStats: {
+            active: jobs.data?.filter(job => job.isActive).length || 0,
+            inactive: jobs.data?.filter(job => !job.isActive).length || 0,
+          },
         },
         message: success('dashboard.data_loaded'),
       });

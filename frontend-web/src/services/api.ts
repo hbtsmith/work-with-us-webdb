@@ -6,8 +6,11 @@ class ApiService {
 
   constructor() {
 
+    let apiUrl = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3001';
+    apiUrl += '/api';
+
     this.api = axios.create({
-      baseURL: (import.meta as any).env?.VITE_API_URL || 'http://localhost:3001/api',
+      baseURL: apiUrl,
       timeout: 10000,
       headers: {
         'Content-Type': 'application/json',
@@ -32,7 +35,9 @@ class ApiService {
       (error) => {
         if (error.response?.status === 401) {
           localStorage.removeItem('auth_token');
-          window.location.href = '/login';
+          if (window.location.pathname !== '/login') {
+            window.location.href = '/login';
+          }
         }
         return Promise.reject(error);
       }
@@ -120,6 +125,27 @@ class ApiService {
     return response.data;
   }
 
+  // Question Options management endpoints
+  async getQuestionOptions(questionId: string): Promise<ApiResponse<any[]>> {
+    const response: AxiosResponse<ApiResponse<any[]>> = await this.api.get(`/questions/${questionId}/options`);
+    return response.data;
+  }
+
+  async createQuestionOption(questionId: string, optionData: any): Promise<ApiResponse<any>> {
+    const response: AxiosResponse<ApiResponse<any>> = await this.api.post(`/questions/${questionId}/options`, optionData);
+    return response.data;
+  }
+
+  async updateQuestionOption(questionId: string, optionId: string, optionData: any): Promise<ApiResponse<any>> {
+    const response: AxiosResponse<ApiResponse<any>> = await this.api.put(`/questions/${questionId}/options/${optionId}`, optionData);
+    return response.data;
+  }
+
+  async deleteQuestionOption(questionId: string, optionId: string): Promise<ApiResponse<null>> {
+    const response: AxiosResponse<ApiResponse<null>> = await this.api.delete(`/questions/${questionId}/options/${optionId}`);
+    return response.data;
+  }
+
       // Positions endpoints
       async getPositions(page = 1, limit = 10, sortBy = 'createdAt', sortOrder = 'desc'): Promise<PaginatedResponse<Position>> {
         const response: AxiosResponse<PaginatedResponse<Position>> = await this.api.get('/positions', {
@@ -156,8 +182,31 @@ class ApiService {
     return response.data;
   }
 
+  async getApplicationsByJob(jobId: string, page = 1, limit = 10): Promise<PaginatedResponse<Application>> {
+    const response: AxiosResponse<PaginatedResponse<Application>> = await this.api.get(`/applications/job/${jobId}?page=${page}&limit=${limit}`);
+    return response.data;
+  }
+
   async deleteApplication(id: string): Promise<ApiResponse<null>> {
     const response: AxiosResponse<ApiResponse<null>> = await this.api.delete(`/applications/${id}`);
+    return response.data;
+  }
+
+  // Submit application endpoint
+  async submitApplication(slug: string, formData: FormData): Promise<ApiResponse<any>> {
+    const response: AxiosResponse<ApiResponse<any>> = await this.api.post(`/applications/submit/${slug}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  }
+
+  // Download resume
+  async downloadResume(applicationId: string): Promise<Blob> {
+    const response: AxiosResponse<Blob> = await this.api.get(`/applications/${applicationId}/resume`, {
+      responseType: 'blob',
+    });
     return response.data;
   }
 

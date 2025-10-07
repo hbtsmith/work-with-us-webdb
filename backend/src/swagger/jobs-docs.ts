@@ -46,7 +46,21 @@ export const jobsSwaggerDocs = {
                     type: { type: 'string' },
                     isRequired: { type: 'boolean' },
                     order: { type: 'number' },
-                    options: { type: 'array' }
+                    options: {
+                      type: 'array',
+                      items: {
+                        type: 'object',
+                        properties: {
+                          id: { type: 'string' },
+                          questionId: { type: 'string' },
+                          label: { type: 'string' },
+                          orderIndex: { type: 'number' },
+                          isActive: { type: 'boolean' },
+                          createdAt: { type: 'string', format: 'date-time' },
+                          updatedAt: { type: 'string', format: 'date-time' }
+                        }
+                      }
+                    }
                   }
                 }
               }
@@ -96,7 +110,21 @@ export const jobsSwaggerDocs = {
                     type: { type: 'string' },
                     isRequired: { type: 'boolean' },
                     order: { type: 'number' },
-                    options: { type: 'array' }
+                    options: {
+                      type: 'array',
+                      items: {
+                        type: 'object',
+                        properties: {
+                          id: { type: 'string' },
+                          questionId: { type: 'string' },
+                          label: { type: 'string' },
+                          orderIndex: { type: 'number' },
+                          isActive: { type: 'boolean' },
+                          createdAt: { type: 'string', format: 'date-time' },
+                          updatedAt: { type: 'string', format: 'date-time' }
+                        }
+                      }
+                    }
                   }
                 }
               },
@@ -216,7 +244,21 @@ export const jobsSwaggerDocs = {
                     type: { type: 'string' },
                     isRequired: { type: 'boolean' },
                     order: { type: 'number' },
-                    options: { type: 'array' }
+                    options: {
+                      type: 'array',
+                      items: {
+                        type: 'object',
+                        properties: {
+                          id: { type: 'string' },
+                          questionId: { type: 'string' },
+                          label: { type: 'string' },
+                          orderIndex: { type: 'number' },
+                          isActive: { type: 'boolean' },
+                          createdAt: { type: 'string', format: 'date-time' },
+                          updatedAt: { type: 'string', format: 'date-time' }
+                        }
+                      }
+                    }
                   }
                 }
               },
@@ -280,7 +322,21 @@ export const jobsSwaggerDocs = {
                     type: { type: 'string' },
                     isRequired: { type: 'boolean' },
                     order: { type: 'number' },
-                    options: { type: 'array' }
+                    options: {
+                      type: 'array',
+                      items: {
+                        type: 'object',
+                        properties: {
+                          id: { type: 'string' },
+                          questionId: { type: 'string' },
+                          label: { type: 'string' },
+                          orderIndex: { type: 'number' },
+                          isActive: { type: 'boolean' },
+                          createdAt: { type: 'string', format: 'date-time' },
+                          updatedAt: { type: 'string', format: 'date-time' }
+                        }
+                      }
+                    }
                   }
                 }
               }
@@ -365,7 +421,21 @@ export const jobsSwaggerDocs = {
                     type: { type: 'string' },
                     isRequired: { type: 'boolean' },
                     order: { type: 'number' },
-                    options: { type: 'array' }
+                    options: {
+                      type: 'array',
+                      items: {
+                        type: 'object',
+                        properties: {
+                          id: { type: 'string' },
+                          questionId: { type: 'string' },
+                          label: { type: 'string' },
+                          orderIndex: { type: 'number' },
+                          isActive: { type: 'boolean' },
+                          createdAt: { type: 'string', format: 'date-time' },
+                          updatedAt: { type: 'string', format: 'date-time' }
+                        }
+                      }
+                    }
                   }
                 }
               }

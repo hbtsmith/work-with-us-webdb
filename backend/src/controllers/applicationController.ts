@@ -4,6 +4,8 @@ import { JobService } from '@/services/jobService';
 import { PaginationQuery } from '@/types';
 import { success } from '@/i18n/i18n';
 import { ErrorHandler } from '@/handlers/ErrorHandler';
+import { promises as fs } from 'fs';
+import path from 'path';
 
 /**
  * Follow SOLID principles
@@ -77,11 +79,43 @@ export class ApplicationController {
       // In production, you should verify the token with Google's API
       
       // Map answers to the expected format
-      const mappedAnswers = answers.map((answer: any) => ({
-        questionId: answer.questionId,
-        textValue: answer.value,
-        questionOptionId: answer.questionOptionId,
-      }));
+      // answers can be either an array or an object (Record<questionId, value>)
+      let mappedAnswers;
+      
+      if (Array.isArray(answers)) {
+        // Already in array format (from tests)
+        mappedAnswers = answers.map((answer: any) => ({
+          questionId: answer.questionId,
+          textValue: answer.value,
+          questionOptionId: answer.questionOptionId,
+        }));
+      } else {
+        // Object format from frontend (Record<questionId, value>)
+        mappedAnswers = Object.entries(answers).map(([questionId, value]) => {
+          // Check if value is a question option ID (for SINGLE_CHOICE/MULTIPLE_CHOICE)
+          if (typeof value === 'string' && value.startsWith('cmg')) {
+            return {
+              questionId,
+              textValue: null,
+              questionOptionId: value,
+            };
+          } else if (Array.isArray(value)) {
+            // For MULTIPLE_CHOICE, we need to create multiple answers
+            return value.map((optionId: string) => ({
+              questionId,
+              textValue: null,
+              questionOptionId: optionId,
+            }));
+          } else {
+            // For SHORT_TEXT/LONG_TEXT
+            return {
+              questionId,
+              textValue: value as string,
+              questionOptionId: null,
+            };
+          }
+        }).flat();
+      }
 
       const application = await this.applicationService.submitApplication(
         job.id,
@@ -174,6 +208,50 @@ export class ApplicationController {
         success: true,
         data: stats,
       });
+    } catch (error) {
+      return ErrorHandler.handle(error as Error, reply);
+    }
+  }
+  
+  async downloadResume(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const { id } = request.params as { id: string };
+      
+      // Get application to verify it exists and get resume filename
+      const application = await this.applicationService.getApplicationById(id);
+      
+      if (!application.resumeUrl) {
+        return reply.status(404).send({
+          success: false,
+          error: 'Not Found',
+          message: 'Resume not found for this application',
+        });
+      }
+      
+      // Determine upload directory - always use 'uploads' in production/dev
+      const uploadDir = path.join(process.cwd(), 'uploads');
+      
+      const filePath = path.join(uploadDir, application.resumeUrl);
+      
+      // Check if file exists
+      try {
+        await fs.access(filePath);
+      } catch {
+        return reply.status(404).send({
+          success: false,
+          error: 'Not Found',
+          message: 'Resume file not found on server',
+        });
+      }
+      
+      // Read file
+      const fileBuffer = await fs.readFile(filePath);
+      
+      // Set headers for download
+      reply.header('Content-Type', 'application/pdf');
+      reply.header('Content-Disposition', `attachment; filename="${application.resumeUrl}"`);
+      
+      return reply.send(fileBuffer);
     } catch (error) {
       return ErrorHandler.handle(error as Error, reply);
     }

@@ -66,5 +66,12 @@ export async function applicationRoutes(fastify: FastifyInstance) {
       schema: applicationsSwaggerDocs.getApplicationStats,
       handler: applicationController.getApplicationStats.bind(applicationController),
     });
+    
+    // Download resume
+    fastify.get('/:id/resume', {
+      preHandler: [validateParams(idParamSchema)],
+      schema: applicationsSwaggerDocs.downloadResume,
+      handler: applicationController.downloadResume.bind(applicationController),
+    });
   });
 }

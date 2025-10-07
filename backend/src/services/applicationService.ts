@@ -152,6 +152,12 @@ export class ApplicationService {
         answers: {
           include: {
             question: true,
+            questionOption: true,
+          },
+          orderBy: {
+            question: {
+              order: 'asc',
+            },
           },
         },
       },

@@ -4,6 +4,7 @@ import { apiService } from '@/services/api';
 import { Job, Question, Position } from '@/types';
 import { Plus, Edit, Trash2, GripVertical, ChevronDown, Search, X } from 'lucide-react';
 import { Layout } from '@/components/Layout';
+import { toastUtils } from '@/utils/toast';
 
 interface PaginationInfo {
   page: number;
@@ -16,11 +17,6 @@ interface QuestionFormData {
   label: string;
   type: 'SHORT_TEXT' | 'LONG_TEXT' | 'MULTIPLE_CHOICE' | 'SINGLE_CHOICE';
   isRequired: boolean;
-  options: Array<{
-    id: string;
-    label: string;
-    value: string;
-  }>;
 }
 
 interface JobFormData {
@@ -83,17 +79,35 @@ export function JobsPage() {
 
   // Question modal states
   const [isQuestionModalOpen, setIsQuestionModalOpen] = useState(false);
+  const [isEditingQuestion, setIsEditingQuestion] = useState(false);
+  const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
   const [questionFormData, setQuestionFormData] = useState<QuestionFormData>({
     label: '',
     type: 'SHORT_TEXT',
     isRequired: false,
-    options: [],
   });
   const [questionFormErrors, setQuestionFormErrors] = useState<{
     label?: string;
-    options?: string;
   }>({});
   const [isSubmittingQuestion, setIsSubmittingQuestion] = useState(false);
+
+  // Question Options modal states
+  const [isOptionsModalOpen, setIsOptionsModalOpen] = useState(false);
+  const [managingQuestion, setManagingQuestion] = useState<Question | null>(null);
+  const [questionOptions, setQuestionOptions] = useState<any[]>([]);
+  const [loadingOptions, setLoadingOptions] = useState(false);
+
+  // Option form states
+  const [isOptionModalOpen, setIsOptionModalOpen] = useState(false);
+  const [isEditingOption, setIsEditingOption] = useState(false);
+  const [editingOption, setEditingOption] = useState<any>(null);
+  const [optionFormData, setOptionFormData] = useState({
+    label: '',
+  });
+  const [optionFormErrors, setOptionFormErrors] = useState<{
+    label?: string;
+  }>({});
+  const [isSubmittingOption, setIsSubmittingOption] = useState(false);
 
   // Drag & Drop states
   const [draggedQuestion, setDraggedQuestion] = useState<string | null>(null);
@@ -326,25 +340,27 @@ export function JobsPage() {
       if (isEditing && editingJob) {
         const response = await apiService.updateJob(editingJob.id, formData);
         if (response.success) {
+          toastUtils.success(String(t('pages.jobs.jobUpdated')));
           await fetchJobs();
           closeModal();
         } else {
-          setError(response.message || 'Failed to update job');
+          toastUtils.error(response.message || String(t('pages.jobs.jobUpdateFailed')));
         }
       } else {
         const response = await apiService.createJob(formData);
         if (response.success && response.data) {
+          toastUtils.success(String(t('pages.jobs.jobCreated')));
           await fetchJobs();
           // Switch to questions tab for new job
           setActiveTab('questions');
           setEditingJob(response.data);
           setIsEditing(true);
         } else {
-          setError(response.message || 'Failed to create job');
+          toastUtils.error(response.message || String(t('pages.jobs.jobCreateFailed')));
         }
       }
     } catch (err: any) {
-      setError(err?.response?.data?.message || err?.message || 'Failed to save job');
+      toastUtils.error(err?.response?.data?.message || err?.message || String(t('pages.jobs.jobSaveFailed')));
     } finally {
       setIsSubmitting(false);
     }
@@ -355,23 +371,37 @@ export function JobsPage() {
     try {
       const response = await apiService.deleteJob(jobId);
       if (response.success) {
+        toastUtils.success(String(t('pages.jobs.jobDeleted')));
         await fetchJobs();
         closeModal();
       } else {
-        setError(response.message || 'Failed to delete job');
+        toastUtils.error(response.message || String(t('pages.jobs.jobDeleteFailed')));
       }
     } catch (err: any) {
-      setError(err?.response?.data?.message || err?.message || 'Failed to delete job');
+      toastUtils.error(err?.response?.data?.message || err?.message || String(t('pages.jobs.jobDeleteFailed')));
     }
   };
 
   // Question modal functions
   const openQuestionModal = () => {
+    setIsEditingQuestion(false);
+    setEditingQuestion(null);
     setQuestionFormData({
       label: '',
       type: 'SHORT_TEXT',
       isRequired: false,
-      options: [],
+    });
+    setQuestionFormErrors({});
+    setIsQuestionModalOpen(true);
+  };
+
+  const openEditQuestionModal = (question: Question) => {
+    setIsEditingQuestion(true);
+    setEditingQuestion(question);
+    setQuestionFormData({
+      label: question.label,
+      type: question.type,
+      isRequired: question.isRequired,
     });
     setQuestionFormErrors({});
     setIsQuestionModalOpen(true);
@@ -379,11 +409,12 @@ export function JobsPage() {
 
   const closeQuestionModal = () => {
     setIsQuestionModalOpen(false);
+    setIsEditingQuestion(false);
+    setEditingQuestion(null);
     setQuestionFormData({
       label: '',
       type: 'SHORT_TEXT',
       isRequired: false,
-      options: [],
     });
     setQuestionFormErrors({});
   };
@@ -391,16 +422,10 @@ export function JobsPage() {
   const validateQuestionForm = (): boolean => {
     const errors: {
       label?: string;
-      options?: string;
     } = {};
 
     if (!questionFormData.label.trim()) {
       errors.label = String(t('common.required'));
-    }
-
-    if ((questionFormData.type === 'MULTIPLE_CHOICE' || questionFormData.type === 'SINGLE_CHOICE') && 
-        questionFormData.options.length === 0) {
-      errors.options = String(t('pages.jobs.questionOptionsRequired'));
     }
 
     setQuestionFormErrors(errors);
@@ -422,41 +447,6 @@ export function JobsPage() {
     }
   };
 
-  const addQuestionOption = () => {
-    const newOption = {
-      id: Date.now().toString(),
-      label: '',
-      value: '',
-    };
-    setQuestionFormData(prev => ({
-      ...prev,
-      options: [...prev.options, newOption]
-    }));
-    
-    // Focus on the new option's label field after state update
-    setTimeout(() => {
-      const newOptionElement = document.querySelector(`[data-option-id="${newOption.id}"] input[placeholder*="Rótulo"]`) as HTMLInputElement;
-      if (newOptionElement) {
-        newOptionElement.focus();
-      }
-    }, 100);
-  };
-
-  const removeQuestionOption = (optionId: string) => {
-    setQuestionFormData(prev => ({
-      ...prev,
-      options: prev.options.filter(option => option.id !== optionId)
-    }));
-  };
-
-  const updateQuestionOption = (optionId: string, field: 'label' | 'value', value: string) => {
-    setQuestionFormData(prev => ({
-      ...prev,
-      options: prev.options.map(option =>
-        option.id === optionId ? { ...option, [field]: value } : option
-      )
-    }));
-  };
 
   const handleQuestionSubmit = async () => {
     if (!validateQuestionForm() || !editingJob) return;
@@ -464,26 +454,32 @@ export function JobsPage() {
     try {
       setIsSubmittingQuestion(true);
 
-      // Calculate next order
-      const nextOrder = questions.length + 1;
-
       const questionData = {
-        ...questionFormData,
-        order: nextOrder,
-        options: questionFormData.type === 'MULTIPLE_CHOICE' || questionFormData.type === 'SINGLE_CHOICE' 
-          ? questionFormData.options 
-          : undefined
+        ...questionFormData
       };
 
-      const response = await apiService.createJobQuestion(editingJob.id, questionData);
+      let response;
+      if (isEditingQuestion && editingQuestion) {
+        // Update existing question
+        response = await apiService.updateJobQuestion(editingJob.id, editingQuestion.id, questionData);
+      } else {
+        // Create new question
+        const nextOrder = questions.length + 1;
+        response = await apiService.createJobQuestion(editingJob.id, {
+          ...questionData,
+          order: nextOrder
+        });
+      }
+
       if (response.success) {
+        toastUtils.success(String(t(`pages.jobs.question${isEditingQuestion ? 'Updated' : 'Created'}`)));
         await fetchJobQuestions(editingJob.id);
         closeQuestionModal();
       } else {
-        setError(response.message || 'Failed to create question');
+        toastUtils.error(response.message || String(t(`pages.jobs.question${isEditingQuestion ? 'UpdateFailed' : 'CreateFailed'}`)));
       }
     } catch (err: any) {
-      setError(err?.response?.data?.message || err?.message || 'Failed to create question');
+      toastUtils.error(err?.response?.data?.message || err?.message || String(t(`pages.jobs.question${isEditingQuestion ? 'UpdateFailed' : 'CreateFailed'}`)));
     } finally {
       setIsSubmittingQuestion(false);
     }
@@ -495,12 +491,123 @@ export function JobsPage() {
     try {
       const response = await apiService.deleteJobQuestion(editingJob.id, questionId);
       if (response.success) {
+        toastUtils.success(String(t('pages.jobs.questionDeleted')));
         await fetchJobQuestions(editingJob.id);
       } else {
-        setError(response.message || 'Failed to delete question');
+        toastUtils.error(response.message || String(t('pages.jobs.questionDeleteFailed')));
       }
     } catch (err: any) {
-      setError(err?.response?.data?.message || err?.message || 'Failed to delete question');
+      const errorMessage = err?.response?.data?.message || err?.message || String(t('pages.jobs.questionDeleteFailed'));
+      toastUtils.error(errorMessage);
+    }
+  };
+
+  // Question Options management functions
+  const handleManageQuestionOptions = async (question: Question) => {
+    setManagingQuestion(question);
+    setIsOptionsModalOpen(true);
+    await fetchQuestionOptions(question.id);
+  };
+
+  const fetchQuestionOptions = async (questionId: string) => {
+    try {
+      setLoadingOptions(true);
+      const response = await apiService.getQuestionOptions(questionId);
+      if (response.success) {
+        setQuestionOptions(response.data || []);
+      } else {
+        toastUtils.error(response.message || String(t('pages.jobs.optionsFetchFailed')));
+      }
+    } catch (err: any) {
+      toastUtils.error(err?.response?.data?.message || err?.message || String(t('pages.jobs.optionsFetchFailed')));
+    } finally {
+      setLoadingOptions(false);
+    }
+  };
+
+  const closeOptionsModal = () => {
+    setIsOptionsModalOpen(false);
+    setManagingQuestion(null);
+    setQuestionOptions([]);
+  };
+
+  const handleAddOption = () => {
+    setIsEditingOption(false);
+    setEditingOption(null);
+    setOptionFormData({ label: '' });
+    setOptionFormErrors({});
+    setIsOptionModalOpen(true);
+  };
+
+  const handleEditOption = (option: any) => {
+    setIsEditingOption(true);
+    setEditingOption(option);
+    setOptionFormData({ label: option.label });
+    setOptionFormErrors({});
+    setIsOptionModalOpen(true);
+  };
+
+  const closeOptionModal = () => {
+    setIsOptionModalOpen(false);
+    setIsEditingOption(false);
+    setEditingOption(null);
+    setOptionFormData({ label: '' });
+    setOptionFormErrors({});
+  };
+
+  const validateOptionForm = (): boolean => {
+    const errors: { label?: string } = {};
+
+    if (!optionFormData.label.trim()) {
+      errors.label = String(t('common.required'));
+    }
+
+    setOptionFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleOptionSubmit = async () => {
+    if (!validateOptionForm() || !managingQuestion) return;
+
+    try {
+      setIsSubmittingOption(true);
+
+      let response;
+      if (isEditingOption && editingOption) {
+        // Update existing option
+        response = await apiService.updateQuestionOption(managingQuestion.id, editingOption.id, optionFormData);
+      } else {
+        // Create new option
+        response = await apiService.createQuestionOption(managingQuestion.id, optionFormData);
+      }
+
+      if (response.success) {
+        toastUtils.success(String(t(`pages.jobs.option${isEditingOption ? 'Updated' : 'Created'}`)));
+        await fetchQuestionOptions(managingQuestion.id);
+        closeOptionModal();
+      } else {
+        toastUtils.error(response.message || String(t(`pages.jobs.option${isEditingOption ? 'UpdateFailed' : 'CreateFailed'}`)));
+      }
+    } catch (err: any) {
+      toastUtils.error(err?.response?.data?.message || err?.message || String(t(`pages.jobs.option${isEditingOption ? 'UpdateFailed' : 'CreateFailed'}`)));
+    } finally {
+      setIsSubmittingOption(false);
+    }
+  };
+
+  const handleDeleteOption = async (optionId: string) => {
+    if (!managingQuestion) return;
+    
+    try {
+      const response = await apiService.deleteQuestionOption(managingQuestion.id, optionId);
+      if (response.success) {
+        toastUtils.success(String(t('pages.jobs.optionDeleted')));
+        await fetchQuestionOptions(managingQuestion.id);
+      } else {
+        toastUtils.error(response.message || String(t('pages.jobs.optionDeleteFailed')));
+      }
+    } catch (err: any) {
+      toastUtils.error(err?.response?.data?.message || err?.message || String(t('pages.jobs.optionDeleteFailed')));
     }
   };
 
@@ -905,7 +1012,7 @@ export function JobsPage() {
       {/* Job Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[50]">
-          <div className="bg-primary rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
+          <div className="bg-primary rounded-lg shadow-theme w-full max-w-4xl max-h-[90vh] overflow-hidden">
             {/* Modal Header */}
             <div className="px-6 py-4 border-b border-primary">
               <div className="flex items-center justify-between">
@@ -914,7 +1021,7 @@ export function JobsPage() {
                 </h3>
                 <button
                   onClick={closeModal}
-                  className="text-secondary hover:text-primary"
+                  className="text-secondary hover:text-primary transition-colors"
                 >
                   <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -928,7 +1035,7 @@ export function JobsPage() {
               <nav className="flex space-x-8 px-6">
                 <button
                   onClick={() => setActiveTab('config')}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                  className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
                     activeTab === 'config'
                       ? 'border-accent-primary text-accent-primary'
                       : 'border-transparent text-secondary hover:text-primary hover:border-secondary'
@@ -939,7 +1046,7 @@ export function JobsPage() {
                 <button
                   onClick={() => setActiveTab('questions')}
                   disabled={!isEditing}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                  className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
                     activeTab === 'questions'
                       ? 'border-accent-primary text-accent-primary'
                       : 'border-transparent text-secondary hover:text-primary hover:border-secondary'
@@ -1181,14 +1288,34 @@ export function JobsPage() {
                               </div>
                             )}
                           </div>
-                          <button
-                            onClick={() => handleDeleteQuestion(question.id)}
-                            className="text-accent-danger hover:text-red-700 mt-1"
-                            title={String(t('pages.jobs.deleteQuestion'))}
-                            disabled={isReordering}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
+                          <div className="flex items-center space-x-2">
+                            {(question.type === 'MULTIPLE_CHOICE' || question.type === 'SINGLE_CHOICE') && (
+                              <button
+                                onClick={() => handleManageQuestionOptions(question)}
+                                className="text-accent-secondary hover:text-accent-secondary-hover mt-1"
+                                title={String(t('pages.jobs.manageOptions'))}
+                                disabled={isReordering}
+                              >
+                                <GripVertical className="h-4 w-4" />
+                              </button>
+                            )}
+                            <button
+                              onClick={() => openEditQuestionModal(question)}
+                              className="text-accent-primary hover:text-accent-primary-hover mt-1"
+                              title={String(t('pages.jobs.editQuestion'))}
+                              disabled={isReordering}
+                            >
+                              <Edit className="h-4 w-4" />
+                            </button>
+                            <button
+                              onClick={() => handleDeleteQuestion(question.id)}
+                              className="text-accent-danger hover:text-red-700 mt-1"
+                              title={String(t('pages.jobs.deleteQuestion'))}
+                              disabled={isReordering}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -1201,7 +1328,7 @@ export function JobsPage() {
             <div className="px-6 py-4 border-t border-primary flex justify-end space-x-3">
               <button
                 onClick={closeModal}
-                className="px-4 py-2 text-sm font-medium text-primary bg-tertiary hover:bg-secondary rounded-md border border-primary"
+                className="px-4 py-2 text-sm font-medium text-primary bg-tertiary hover:bg-secondary rounded-md border border-primary transition-colors"
               >
                 {String(t('common.close'))}
               </button>
@@ -1220,11 +1347,11 @@ export function JobsPage() {
       {/* Question Modal */}
       {isQuestionModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60]">
-          <div className="bg-primary rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+          <div className="bg-primary rounded-lg shadow-theme w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="px-6 py-4 border-b border-primary">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-medium text-primary">
-                  {String(t('pages.jobs.addQuestion'))}
+                  {isEditingQuestion ? String(t('pages.jobs.editQuestion')) : String(t('pages.jobs.addQuestion'))}
                 </h3>
                 <button
                   onClick={closeQuestionModal}
@@ -1284,60 +1411,12 @@ export function JobsPage() {
                 </label>
               </div>
 
-              {/* Options for CHOICE types */}
-              {(questionFormData.type === 'MULTIPLE_CHOICE' || questionFormData.type === 'SINGLE_CHOICE') && (
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <label className="block text-sm font-medium text-primary">
-                      {String(t('pages.jobs.questionOptions'))} <span className="text-red-500">*</span>
-                    </label>
-                    <button
-                      type="button"
-                      onClick={addQuestionOption}
-                      className="btn-secondary text-sm"
-                    >
-                      <Plus className="h-4 w-4 mr-1" />
-                      {String(t('pages.jobs.addOption'))}
-                    </button>
-                  </div>
-                  
-                  {questionFormData.options.map((option) => (
-                    <div key={option.id} data-option-id={option.id} className="flex items-center space-x-2 mb-2">
-                      <input
-                        type="text"
-                        value={option.label}
-                        onChange={(e) => updateQuestionOption(option.id, 'label', e.target.value)}
-                        className="input flex-1"
-                        placeholder={String(t('pages.jobs.optionLabelPlaceholder'))}
-                      />
-                      <input
-                        type="text"
-                        value={option.value}
-                        onChange={(e) => updateQuestionOption(option.id, 'value', e.target.value)}
-                        className="input flex-1"
-                        placeholder={String(t('pages.jobs.optionValuePlaceholder'))}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => removeQuestionOption(option.id)}
-                        className="text-red-500 hover:text-red-700 p-1"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
-                  ))}
-                  
-                  {questionFormErrors.options && (
-                    <p className="text-red-500 text-sm mt-1">{String(questionFormErrors.options)}</p>
-                  )}
-                </div>
-              )}
             </div>
             
             <div className="px-6 py-4 border-t border-primary flex justify-end space-x-3">
               <button
                 onClick={closeQuestionModal}
-                className="px-4 py-2 text-sm font-medium text-primary bg-tertiary hover:bg-secondary rounded-md border border-primary"
+                className="px-4 py-2 text-sm font-medium text-primary bg-tertiary hover:bg-secondary rounded-md border border-primary transition-colors"
               >
                 {String(t('common.cancel'))}
               </button>
@@ -1360,10 +1439,149 @@ export function JobsPage() {
         </div>
       )}
 
+      {/* Question Options Modal */}
+      {isOptionsModalOpen && managingQuestion && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[70]">
+          <div className="bg-primary rounded-lg shadow-theme w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="px-6 py-4 border-b border-primary">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-medium text-primary">
+                  {String(t('pages.jobs.manageOptions'))} - {managingQuestion.label}
+                </h3>
+                <button
+                  onClick={closeOptionsModal}
+                  className="text-secondary hover:text-primary transition-colors"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+            </div>
+            
+            <div className="px-6 py-4">
+              {loadingOptions ? (
+                <div className="text-center py-8 text-secondary">
+                  {String(t('common.loading'))}
+                </div>
+              ) : questionOptions.length === 0 ? (
+                <div className="text-center py-8 text-secondary">
+                  {String(t('pages.jobs.noOptions'))}
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {questionOptions.map((option) => (
+                    <div key={option.id} className="flex items-center space-x-3 p-3 border border-primary rounded-lg">
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-primary">{option.label}</p>
+                        <p className="text-xs text-secondary">Ordem: {option.orderIndex}</p>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <button
+                          onClick={() => handleEditOption(option)}
+                          className="text-accent-primary hover:text-accent-primary-hover"
+                          title={String(t('pages.jobs.editOption'))}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteOption(option.id)}
+                          className="text-accent-danger hover:text-red-700"
+                          title={String(t('pages.jobs.deleteOption'))}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            
+            <div className="px-6 py-4 border-t border-primary flex justify-between">
+              <button
+                onClick={closeOptionsModal}
+                className="px-4 py-2 text-sm font-medium text-primary bg-tertiary hover:bg-secondary rounded-md border border-primary transition-colors"
+              >
+                {String(t('common.close'))}
+              </button>
+              <button
+                onClick={() => handleAddOption()}
+                className="btn-primary px-4 py-2 text-sm font-medium"
+              >
+                <Plus className="h-4 w-4 mr-1" />
+                {String(t('pages.jobs.addOption'))}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Option Modal */}
+      {isOptionModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[80]">
+          <div className="bg-primary rounded-lg shadow-theme w-full max-w-md">
+            <div className="px-6 py-4 border-b border-primary">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-medium text-primary">
+                  {isEditingOption ? String(t('pages.jobs.editOption')) : String(t('pages.jobs.addOption'))}
+                </h3>
+                <button
+                  onClick={closeOptionModal}
+                  className="text-secondary hover:text-primary transition-colors"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+            </div>
+            
+            <div className="px-6 py-4 space-y-4">
+              {/* Option Label */}
+              <div>
+                <label className="block text-sm font-medium text-primary mb-2">
+                  {String(t('pages.jobs.optionLabel'))} <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={optionFormData.label}
+                  onChange={(e) => setOptionFormData({ label: e.target.value })}
+                  className="input w-full"
+                  placeholder={String(t('pages.jobs.optionLabelPlaceholder'))}
+                />
+                {optionFormErrors.label && (
+                  <p className="text-red-500 text-sm mt-1">{optionFormErrors.label}</p>
+                )}
+              </div>
+            </div>
+            
+            <div className="px-6 py-4 border-t border-primary flex justify-end space-x-3">
+              <button
+                onClick={closeOptionModal}
+                className="px-4 py-2 text-sm font-medium text-primary bg-tertiary hover:bg-secondary rounded-md border border-primary transition-colors"
+              >
+                {String(t('common.cancel'))}
+              </button>
+              <button
+                onClick={handleOptionSubmit}
+                disabled={isSubmittingOption}
+                className="btn-primary px-4 py-2 text-sm font-medium disabled:opacity-50"
+              >
+                {isSubmittingOption ? (
+                  <div className="flex items-center">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    {String(t('common.saving'))}
+                  </div>
+                ) : (
+                  String(t('common.save'))
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Confirmation Modal */}
       {showConfirmModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60]">
-          <div className="bg-primary rounded-lg shadow-xl w-full max-w-md">
+          <div className="bg-primary rounded-lg shadow-theme w-full max-w-md">
             <div className="px-6 py-4">
               <h3 className="text-lg font-medium text-primary mb-2">
                 {String(t('common.confirm'))}
@@ -1373,7 +1591,7 @@ export function JobsPage() {
             <div className="px-6 py-4 border-t border-primary flex justify-end space-x-3">
               <button
                 onClick={() => setShowConfirmModal(false)}
-                className="px-4 py-2 text-sm font-medium text-primary bg-tertiary hover:bg-secondary rounded-md border border-primary"
+                className="px-4 py-2 text-sm font-medium text-primary bg-tertiary hover:bg-secondary rounded-md border border-primary transition-colors"
               >
                 {String(t('common.cancel'))}
               </button>

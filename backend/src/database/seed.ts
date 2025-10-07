@@ -67,7 +67,7 @@ async function main() {
   });
   
   if (frontendPosition) {
-    await prisma.job.create({
+    const job = await prisma.job.create({
       data: {
         title: 'Frontend Developer - React/TypeScript',
         description: `
@@ -100,12 +100,6 @@ async function main() {
               type: 'SINGLE_CHOICE',
               isRequired: true,
               order: 1,
-              options: [
-                { id: '1', label: 'Menos de 1 ano', value: 'less-than-1' },
-                { id: '2', label: '1-2 anos', value: '1-2' },
-                { id: '3', label: '3-5 anos', value: '3-5' },
-                { id: '4', label: 'Mais de 5 anos', value: 'more-than-5' },
-              ],
             },
             {
               label: 'Descreva um projeto React que você desenvolveu recentemente',
@@ -118,14 +112,6 @@ async function main() {
               type: 'MULTIPLE_CHOICE',
               isRequired: true,
               order: 3,
-              options: [
-                { id: '1', label: 'TypeScript', value: 'typescript' },
-                { id: '2', label: 'Next.js', value: 'nextjs' },
-                { id: '3', label: 'Redux', value: 'redux' },
-                { id: '4', label: 'GraphQL', value: 'graphql' },
-                { id: '5', label: 'Jest', value: 'jest' },
-                { id: '6', label: 'Cypress', value: 'cypress' },
-              ],
             },
             {
               label: 'Qual sua pretensão salarial?',
@@ -143,7 +129,38 @@ async function main() {
         },
       },
     });
-    
+
+    // Criar opções para as perguntas de escolha
+    const questions = await prisma.question.findMany({
+      where: { jobId: job.id },
+      orderBy: { order: 'asc' }
+    });
+
+    // Opções para pergunta 1 (SINGLE_CHOICE)
+    if (questions[0]) {
+      await prisma.questionOption.createMany({
+        data: [
+          { questionId: questions[0].id, label: 'Menos de 1 ano', orderIndex: 0 },
+          { questionId: questions[0].id, label: '1-2 anos', orderIndex: 1 },
+          { questionId: questions[0].id, label: '3-5 anos', orderIndex: 2 },
+          { questionId: questions[0].id, label: 'Mais de 5 anos', orderIndex: 3 }
+        ]
+      });
+    }
+
+    // Opções para pergunta 3 (MULTIPLE_CHOICE)
+    if (questions[2]) {
+      await prisma.questionOption.createMany({
+        data: [
+          { questionId: questions[2].id, label: 'TypeScript', orderIndex: 0 },
+          { questionId: questions[2].id, label: 'Next.js', orderIndex: 1 },
+          { questionId: questions[2].id, label: 'Redux', orderIndex: 2 },
+          { questionId: questions[2].id, label: 'GraphQL', orderIndex: 3 },
+          { questionId: questions[2].id, label: 'Jest', orderIndex: 4 },
+          { questionId: questions[2].id, label: 'Cypress', orderIndex: 5 }
+        ]
+      });
+    }
   }
   
 }

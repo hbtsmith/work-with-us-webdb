@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/hooks/useTranslation';
 import { apiService } from '@/services/api';
 import { Job, Question } from '@/types';
+import { toastUtils } from '@/utils/toast';
 import { 
   FileText, 
   Upload, 
@@ -36,6 +37,18 @@ export function ApplicationPage() {
   
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
+  // Force light theme for application page
+  useEffect(() => {
+    const originalTheme = document.documentElement.classList.contains('dark');
+    document.documentElement.classList.remove('dark');
+    
+    return () => {
+      if (originalTheme) {
+        document.documentElement.classList.add('dark');
+      }
+    };
+  }, []);
+
   useEffect(() => {
     if (slug) {
       fetchJob();
@@ -51,10 +64,13 @@ export function ApplicationPage() {
       if (response.success && response.data) {
         setJob(response.data);
       } else {
-        setError(response.message || 'Job not found');
+        toastUtils.error(response.message || String(t('pages.application.jobNotFound')));
+        setError(response.message || String(t('pages.application.jobNotFound')));
       }
     } catch (err: any) {
-      setError(err?.response?.data?.message || err?.message || 'Failed to load job');
+      const errorMessage = err?.response?.data?.message || err?.message || String(t('pages.application.jobLoadFailed'));
+      toastUtils.error(errorMessage);
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -118,19 +134,32 @@ export function ApplicationPage() {
     try {
       setSubmitting(true);
       
-      // TODO: Implement application submission
-      // const formDataToSend = new FormData();
-      // if (formData.resume) {
-      //   formDataToSend.append('resume', formData.resume);
-      // }
-      // formDataToSend.append('answers', JSON.stringify(formData.answers));
+      const formDataToSend = new FormData();
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Add resume if required
+      if (formData.resume) {
+        formDataToSend.append('resume', formData.resume);
+      }
       
-      setSuccess(true);
+      // Add answers
+      formDataToSend.append('answers', JSON.stringify(formData.answers));
+      
+      // Add recaptcha token (for testing, using a dummy token)
+      formDataToSend.append('recaptchaToken', 'test-recaptcha-token');
+      
+      const response = await apiService.submitApplication(slug!, formDataToSend);
+      
+      if (response.success) {
+        toastUtils.success(String(t('pages.application.submitSuccess')));
+        setSuccess(true);
+      } else {
+        toastUtils.error(response.message || String(t('pages.application.submitFailed')));
+        setError(response.message || String(t('pages.application.submitFailed')));
+      }
     } catch (err: any) {
-      setError(err?.response?.data?.message || err?.message || 'Failed to submit application');
+      const errorMessage = err?.response?.data?.message || err?.message || String(t('pages.application.submitFailed'));
+      toastUtils.error(errorMessage);
+      setError(errorMessage);
     } finally {
       setSubmitting(false);
     }
@@ -143,8 +172,8 @@ export function ApplicationPage() {
     switch (question.type) {
       case 'SHORT_TEXT':
         return (
-          <div key={question.id} className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">
+          <div key={question.id} className="space-y-3">
+            <label className="block text-base font-medium text-gray-900">
               {question.label}
               {question.isRequired && <span className="text-red-500 ml-1">*</span>}
             </label>
@@ -161,8 +190,8 @@ export function ApplicationPage() {
         
       case 'LONG_TEXT':
         return (
-          <div key={question.id} className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">
+          <div key={question.id} className="space-y-3">
+            <label className="block text-base font-medium text-gray-900">
               {question.label}
               {question.isRequired && <span className="text-red-500 ml-1">*</span>}
             </label>
@@ -179,19 +208,19 @@ export function ApplicationPage() {
         
       case 'SINGLE_CHOICE':
         return (
-          <div key={question.id} className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">
+          <div key={question.id} className="space-y-3">
+            <label className="block text-base font-medium text-gray-900">
               {question.label}
               {question.isRequired && <span className="text-red-500 ml-1">*</span>}
             </label>
             <div className="space-y-2">
               {question.options?.map((option, index) => (
-                <label key={option.id || index} className="flex items-center space-x-2">
+                <label key={option.id || index} className="flex items-center space-x-2 cursor-pointer">
                   <input
                     type="radio"
                     name={`question_${question.id}`}
-                    value={option.value}
-                    checked={value === option.value}
+                    value={option.id}
+                    checked={value === option.id}
                     onChange={(e) => handleAnswerChange(question.id, e.target.value)}
                     className="text-blue-600 focus:ring-blue-500"
                   />
@@ -206,22 +235,22 @@ export function ApplicationPage() {
       case 'MULTIPLE_CHOICE':
         const selectedValues = (value as string[]) || [];
         return (
-          <div key={question.id} className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">
+          <div key={question.id} className="space-y-3">
+            <label className="block text-base font-medium text-gray-900">
               {question.label}
               {question.isRequired && <span className="text-red-500 ml-1">*</span>}
             </label>
             <div className="space-y-2">
               {question.options?.map((option, index) => (
-                <label key={option.id || index} className="flex items-center space-x-2">
+                <label key={option.id || index} className="flex items-center space-x-2 cursor-pointer">
                   <input
                     type="checkbox"
-                    value={option.value}
-                    checked={selectedValues.includes(option.value)}
+                    value={option.id}
+                    checked={selectedValues.includes(option.id)}
                     onChange={(e) => {
                       const newValues = e.target.checked
-                        ? [...selectedValues, option.value]
-                        : selectedValues.filter(v => v !== option.value);
+                        ? [...selectedValues, option.id]
+                        : selectedValues.filter(v => v !== option.id);
                       handleAnswerChange(question.id, newValues);
                     }}
                     className="text-blue-600 focus:ring-blue-500"
@@ -244,7 +273,7 @@ export function ApplicationPage() {
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <Loader2 className="h-8 w-8 animate-spin text-blue-600 mx-auto mb-4" />
-          <p className="text-gray-600">Carregando...</p>
+          <p className="text-gray-600">{String(t('common.loading') || 'Carregando...')}</p>
         </div>
       </div>
     );
@@ -259,7 +288,7 @@ export function ApplicationPage() {
           <p className="text-gray-600 mb-6">{error}</p>
           <button
             onClick={() => navigate('/')}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md"
+            className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition-colors"
           >
             {String(t('pages.application.goHome') || 'Voltar ao início')}
           </button>
@@ -277,7 +306,7 @@ export function ApplicationPage() {
           <p className="text-gray-600 mb-6">{String(t('pages.application.successMessage') || 'Sua candidatura foi enviada com sucesso. Entraremos em contato em breve.')}</p>
           <button
             onClick={() => navigate('/')}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md"
+            className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition-colors"
           >
             {String(t('pages.application.goHome') || 'Voltar ao início')}
           </button>
@@ -335,7 +364,7 @@ export function ApplicationPage() {
                     type="file"
                     accept=".pdf,.doc,.docx"
                     onChange={(e) => handleInputChange('resume', e.target.files?.[0] || null)}
-                    className={`w-full px-3 py-2 pl-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 ${formErrors.resume ? 'border-red-500' : ''}`}
+                    className={`w-full pl-10 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 ${formErrors.resume ? 'border-red-500' : ''}`}
                   />
                 </div>
                 {formErrors.resume && <p className="text-sm text-red-500">{formErrors.resume}</p>}
@@ -347,7 +376,7 @@ export function ApplicationPage() {
             {job.questions && job.questions.length > 0 && (
               <div className="space-y-6">
                 <h3 className="text-lg font-medium text-gray-900">{String(t('pages.application.additionalQuestions') || 'Perguntas adicionais')}</h3>
-                <div className="space-y-4">
+                <div className="space-y-8">
                   {job.questions.map(renderQuestionField)}
                 </div>
               </div>
@@ -358,7 +387,7 @@ export function ApplicationPage() {
               <button
                 type="submit"
                 disabled={submitting}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {submitting ? (
                   <>

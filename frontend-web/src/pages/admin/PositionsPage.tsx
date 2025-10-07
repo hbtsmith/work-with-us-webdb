@@ -422,30 +422,30 @@ export function PositionsPage() {
               {isModalOpen && (
                 <div className="fixed inset-0 z-50 overflow-y-auto">
                   <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-                    <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onClick={closeModal}></div>
+                    <div className="fixed inset-0 bg-black bg-opacity-50 transition-opacity" onClick={closeModal}></div>
                     
-                    <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-                      <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div className="inline-block align-bottom bg-primary rounded-lg text-left overflow-hidden shadow-theme transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                      <div className="bg-primary px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                         <div className="flex items-center justify-between mb-4">
-                          <h3 className="text-lg font-medium text-gray-900">
+                          <h3 className="text-lg font-medium text-primary">
                             {isEditing ? String(t('pages.positions.edit')) : String(t('pages.positions.create'))}
                           </h3>
-                          <button onClick={closeModal} className="text-gray-400 hover:text-gray-600">
+                          <button onClick={closeModal} className="text-secondary hover:text-primary transition-colors">
                             <X className="h-6 w-6" />
                           </button>
                         </div>
                         
                         <form className="space-y-4">
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                            <label className="block text-sm font-medium text-primary mb-1">
                               {String(t('pages.positions.title'))}
                             </label>
                             <input
                               type="text"
                               value={formData.title}
                               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 ${
-                                formErrors.title ? 'border-red-500' : 'border-gray-300'
+                              className={`input w-full ${
+                                formErrors.title ? 'border-red-500' : ''
                               }`}
                               placeholder={String(t('pages.positions.title'))}
                             />
@@ -455,15 +455,15 @@ export function PositionsPage() {
                           </div>
                           
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                            <label className="block text-sm font-medium text-primary mb-1">
                               {String(t('pages.positions.level'))}
                             </label>
                             <input
                               type="text"
                               value={formData.level}
                               onChange={(e) => setFormData({ ...formData, level: e.target.value })}
-                              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 ${
-                                formErrors.level ? 'border-red-500' : 'border-gray-300'
+                              className={`input w-full ${
+                                formErrors.level ? 'border-red-500' : ''
                               }`}
                               placeholder={String(t('pages.positions.level'))}
                             />
@@ -473,15 +473,15 @@ export function PositionsPage() {
                           </div>
                           
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                            <label className="block text-sm font-medium text-primary mb-1">
                               {String(t('pages.positions.salaryRange'))}
                             </label>
                             <input
                               type="text"
                               value={formData.salaryRange}
                               onChange={(e) => setFormData({ ...formData, salaryRange: e.target.value })}
-                              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 ${
-                                formErrors.salaryRange ? 'border-red-500' : 'border-gray-300'
+                              className={`input w-full ${
+                                formErrors.salaryRange ? 'border-red-500' : ''
                               }`}
                               placeholder={String(t('pages.positions.salaryRange'))}
                             />
@@ -492,17 +492,17 @@ export function PositionsPage() {
                         </form>
                       </div>
                       
-                      <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                      <div className="bg-tertiary px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
                         <button
                           onClick={handleFormSubmit}
                           disabled={isSubmitting}
-                          className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary-600 text-base font-medium text-white hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50"
+                          className="btn-primary w-full sm:ml-3 sm:w-auto"
                         >
                           {isSubmitting ? String(t('common.loading')) : String(t('common.save'))}
                         </button>
                         <button
                           onClick={closeModal}
-                          className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                          className="mt-3 w-full inline-flex justify-center rounded-md border border-primary px-4 py-2 text-base font-medium text-primary bg-tertiary hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent-primary sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm transition-colors"
                         >
                           {String(t('common.cancel'))}
                         </button>
@@ -516,10 +516,10 @@ export function PositionsPage() {
               {showConfirmModal && (
                 <div className="fixed inset-0 z-50 overflow-y-auto">
                   <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-                    <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
+                    <div className="fixed inset-0 bg-black bg-opacity-50 transition-opacity"></div>
                     
-                    <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-                      <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div className="inline-block align-bottom bg-primary rounded-lg text-left overflow-hidden shadow-theme transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                      <div className="bg-primary px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                         <div className="sm:flex sm:items-start">
                           <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
                             <svg className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -527,11 +527,11 @@ export function PositionsPage() {
                             </svg>
                           </div>
                           <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                            <h3 className="text-lg leading-6 font-medium text-gray-900">
+                            <h3 className="text-lg leading-6 font-medium text-primary">
                               {String(t('common.confirm'))}
                             </h3>
                             <div className="mt-2">
-                              <p className="text-sm text-gray-500">
+                              <p className="text-sm text-secondary">
                                 {confirmMessage}
                               </p>
                             </div>
@@ -539,7 +539,7 @@ export function PositionsPage() {
                         </div>
                       </div>
                       
-                      <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                      <div className="bg-tertiary px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
                         <button
                           onClick={handleConfirm}
                           disabled={isSubmitting}
@@ -549,7 +549,7 @@ export function PositionsPage() {
                         </button>
                         <button
                           onClick={() => setShowConfirmModal(false)}
-                          className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                          className="mt-3 w-full inline-flex justify-center rounded-md border border-primary px-4 py-2 text-base font-medium text-primary bg-tertiary hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent-primary sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm transition-colors"
                         >
                           {String(t('common.cancel'))}
                         </button>

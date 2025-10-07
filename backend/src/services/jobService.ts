@@ -91,6 +91,11 @@ export class JobService {
         position: true,
         questions: {
           orderBy: { order: 'asc' },
+          include: {
+            options: {
+              orderBy: { orderIndex: 'asc' },
+            },
+          },
         },
       },
     });

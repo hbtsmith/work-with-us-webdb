@@ -56,8 +56,12 @@ export interface Question {
 
 export interface QuestionOption {
   id: string;
+  questionId: string;
   label: string;
-  value: string;
+  orderIndex: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface Application {

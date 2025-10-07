@@ -157,7 +157,7 @@ export async function cleanupTestData() {
 export async function resetDatabase() {
   try {
     // Drop and recreate the database
-    execSync('mysql -u root -proot -e "DROP DATABASE IF EXISTS work_with_us_db; CREATE DATABASE work_with_us_db;"');
+    execSync('mysql -u root -proot -e "DROP DATABASE IF EXISTS work_with_us_test_db; CREATE DATABASE work_with_us_test_db;"');
     execSync('npx prisma db push', { stdio: 'inherit' });
   } catch (error) {
     console.error('Failed to reset database:', error);
