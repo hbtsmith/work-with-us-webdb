@@ -7,7 +7,8 @@
     "dev": "tsx watch src/server.ts",
     "dev:nodemon": "nodemon --exec tsx src/server.ts",
     "build": "tsc",
-    "start": "node dist/server.js",
+    "start": "tsx src/server.ts",
+    "start:node": "node dist/server.js",
     "test": "vitest",
     "test:all": "npm run test:controllers && npm run test:services && npm run test:utils && npm run test:e2e",
     "test:controllers": "./src/tests/scripts/run-all-controller-tests.sh",
@@ -60,6 +61,7 @@
     "bcryptjs": "^2.4.3",
     "dotenv": "^17.2.2",
     "fastify": "^4.24.3",
+    "tsx": "^4.6.2",
     "zod": "^3.22.4"
   },
   "devDependencies": {
@@ -76,7 +78,6 @@
     "prettier": "^3.1.0",
     "prisma": "^5.7.1",
     "supertest": "^6.3.3",
-    "tsx": "^4.6.2",
     "typescript": "^5.3.3",
     "vitest": "^1.0.4"
   },

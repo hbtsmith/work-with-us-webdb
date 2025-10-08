@@ -5,12 +5,6 @@
 
 cd /var/www/work-with-us-webdb/backend
 
-# Verificar se tsx está disponível
-if command -v tsx &> /dev/null; then
-    echo "Iniciando backend com tsx..."
-    exec tsx src/server.ts
-else
-    echo "tsx não encontrado, compilando e executando com node..."
-    npm run build
-    exec node dist/server.js
-fi
+# Usar npm start que agora usa tsx (resolve aliases @/)
+echo "Iniciando backend..."
+exec npm start

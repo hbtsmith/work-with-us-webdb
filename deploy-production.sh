@@ -66,16 +66,50 @@ fi
 echo -e "${GREEN}✅ Conexão com MySQL validada${NC}"
 
 # Obter IP do container MySQL
-MYSQL_CONTAINER_IP=$(docker inspect $MYSQL_CONTAINER --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' 2>/dev/null || echo "localhost")
+MYSQL_CONTAINER_IP=$(docker inspect $MYSQL_CONTAINER --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' 2>/dev/null || echo "")
 
-# Construir URL do banco de dados (tentar IP do container primeiro, depois nome)
-if [ "$MYSQL_CONTAINER_IP" != "localhost" ]; then
-    DATABASE_URL="mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@${MYSQL_CONTAINER_IP}:3306/${DATABASE_NAME}"
-    echo -e "${GREEN}✅ Usando IP do container: $MYSQL_CONTAINER_IP${NC}"
-else
-    DATABASE_URL="mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@mysql57_prod:3306/${DATABASE_NAME}"
-    echo -e "${YELLOW}⚠️  Usando nome do container: mysql57_prod${NC}"
+# Verificar se a porta 3306 está exposta no host
+MYSQL_HOST="localhost"
+MYSQL_PORT="3306"
+
+# Verificar se o container está usando rede host
+CONTAINER_NETWORK=$(docker inspect $MYSQL_CONTAINER --format='{{range $key, $value := .NetworkSettings.Networks}}{{$key}}{{end}}' 2>/dev/null || echo "")
+
+# Testar conexão via localhost primeiro
+if [ "$CONTAINER_NETWORK" = "host" ]; then
+    echo -e "${YELLOW}Container usando rede host, testando localhost:3306...${NC}"
+    if timeout 5 mysql -h localhost -P 3306 -u$MYSQL_USER -p$MYSQL_PASSWORD -e "SELECT 1;" > /dev/null 2>&1; then
+        echo -e "${GREEN}✅ localhost:3306 funcionando${NC}"
+        MYSQL_HOST="localhost"
+        MYSQL_PORT="3306"
+    else
+        echo -e "${YELLOW}⚠️  localhost:3306 não funcionando, tentando outras opções...${NC}"
+        MYSQL_HOST=""
+    fi
 fi
+
+# Se localhost não funcionou, tentar outras opções
+if [ -z "$MYSQL_HOST" ]; then
+    if docker port $MYSQL_CONTAINER 3306 2>/dev/null | grep -q "3306"; then
+        echo -e "${GREEN}✅ Container expõe porta 3306, usando localhost${NC}"
+        MYSQL_HOST="localhost"
+        MYSQL_PORT="3306"
+    elif [ -n "$MYSQL_CONTAINER_IP" ] && [ "$MYSQL_CONTAINER_IP" != "localhost" ]; then
+        echo -e "${GREEN}✅ Usando IP do container: $MYSQL_CONTAINER_IP${NC}"
+        MYSQL_HOST="$MYSQL_CONTAINER_IP"
+        MYSQL_PORT="3306"
+    else
+        echo -e "${YELLOW}⚠️  Nenhuma conexão externa funcionando${NC}"
+        echo -e "${YELLOW}⚠️  MySQL não acessível externamente, usando fallback para container${NC}"
+        MYSQL_HOST="localhost"  # Usar localhost mesmo que não funcione
+        MYSQL_PORT="3306"
+        USE_CONTAINER_FALLBACK=true
+    fi
+fi
+
+# Construir URL do banco de dados
+DATABASE_URL="mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@${MYSQL_HOST}:${MYSQL_PORT}/${DATABASE_NAME}"
+echo -e "${GREEN}✅ DATABASE_URL configurada: mysql://${MYSQL_USER}:***@${MYSQL_HOST}:${MYSQL_PORT}/${DATABASE_NAME}${NC}"
 
 # =============================================================================
 # 1. VERIFICAR PRÉ-REQUISITOS
@@ -188,8 +222,8 @@ echo -e "${YELLOW}⚙️  Configurando backend...${NC}"
 
 cd "$BACKEND_DIR"
 
-# Instalar dependências
-npm ci --production
+# Instalar dependências (incluindo tsx que agora está em dependencies)
+npm ci
 
 # Gerar Prisma client
 npx prisma generate
@@ -203,27 +237,91 @@ docker exec $MYSQL_CONTAINER mysql -u$MYSQL_USER -p$MYSQL_PASSWORD -e "CREATE DA
 # Configurar banco de dados (migrar schema)
 echo -e "${YELLOW}Configurando schema do banco de dados...${NC}"
 
-# Tentar configurar schema
-if npx prisma db push --accept-data-loss; then
-    echo -e "${GREEN}✅ Schema do banco configurado com sucesso${NC}"
+# Verificar se deve usar fallback do container
+if [ "$USE_CONTAINER_FALLBACK" = "true" ]; then
+    echo -e "${YELLOW}⚠️  MySQL não acessível externamente, executando Prisma dentro do container...${NC}"
+    
+    # Copiar arquivos para o container
+    echo -e "${YELLOW}📁 Copiando arquivos para o container...${NC}"
+    if docker cp "$BACKEND_DIR" $MYSQL_CONTAINER:/app/ 2>/dev/null; then
+        echo -e "${GREEN}✅ Arquivos copiados para o container${NC}"
+        
+        # Criar .env dentro do container
+        echo -e "${YELLOW}📝 Criando .env dentro do container...${NC}"
+        JWT_SECRET_TEMP=$(openssl rand -base64 32)
+        docker exec $MYSQL_CONTAINER sh -c "echo 'DATABASE_URL=\"$DATABASE_URL\"' > /app/backend/.env" 2>/dev/null
+        docker exec $MYSQL_CONTAINER sh -c "echo 'JWT_SECRET=\"$JWT_SECRET_TEMP\"' >> /app/backend/.env" 2>/dev/null
+        docker exec $MYSQL_CONTAINER sh -c "echo 'NODE_ENV=production' >> /app/backend/.env" 2>/dev/null
+        docker exec $MYSQL_CONTAINER sh -c "echo 'PORT=3001' >> /app/backend/.env" 2>/dev/null
+        
+        # Instalar dependências dentro do container (mínimo necessário)
+        echo -e "${YELLOW}📦 Instalando Prisma dentro do container...${NC}"
+        docker exec -w /app/backend $MYSQL_CONTAINER sh -c "npm install prisma @prisma/client --save-dev" 2>/dev/null || true
+        
+        # Gerar Prisma client
+        echo -e "${YELLOW}🔧 Gerando Prisma client...${NC}"
+        docker exec -w /app/backend $MYSQL_CONTAINER sh -c "npx prisma generate" 2>/dev/null || true
+        
+        # Executar Prisma dentro do container
+        echo -e "${YELLOW}Executando Prisma db push...${NC}"
+        if docker exec -w /app/backend $MYSQL_CONTAINER sh -c "npx prisma db push --accept-data-loss"; then
+            echo -e "${GREEN}✅ Schema configurado via container${NC}"
+        else
+            echo -e "${YELLOW}⚠️  Schema não configurado via container, continuando deploy...${NC}"
+            echo -e "${YELLOW}Você pode configurar manualmente depois com:${NC}"
+            echo -e "${BLUE}  sudo ./run-prisma-in-container.sh${NC}"
+        fi
+    else
+        echo -e "${YELLOW}⚠️  Não foi possível copiar arquivos para o container${NC}"
+        echo -e "${YELLOW}Você pode configurar manualmente depois com:${NC}"
+        echo -e "${BLUE}  sudo ./run-prisma-in-container.sh${NC}"
+    fi
 else
-    echo -e "${YELLOW}⚠️  Erro ao configurar schema automaticamente${NC}"
-    echo -e "${YELLOW}Isso pode ser normal se o container não estiver na mesma rede Docker${NC}"
-    echo -e "${YELLOW}Você pode configurar manualmente depois com:${NC}"
-    echo -e "${BLUE}  cd /var/www/work-with-us-webdb/backend${NC}"
-    echo -e "${BLUE}  npx prisma db push${NC}"
-    echo -e "${YELLOW}Continuando com o deploy...${NC}"
+    # Tentar configurar schema normalmente
+    if npx prisma db push --accept-data-loss; then
+        echo -e "${GREEN}✅ Schema do banco configurado com sucesso${NC}"
+    else
+        echo -e "${YELLOW}⚠️  Erro ao configurar schema automaticamente${NC}"
+        echo -e "${YELLOW}Você pode configurar manualmente depois com:${NC}"
+        echo -e "${BLUE}  cd /var/www/work-with-us-webdb/backend${NC}"
+        echo -e "${BLUE}  npx prisma db push${NC}"
+        echo -e "${YELLOW}Continuando com o deploy...${NC}"
+    fi
 fi
 
 # Executar seed imediatamente após configuração do banco
 if [ -f "src/database/seed.ts" ]; then
     echo -e "${YELLOW}Executando seed do banco...${NC}"
-    npm run db:seed || {
-        echo -e "${YELLOW}⚠️  Seed falhou, mas continuando deploy...${NC}"
-        echo -e "${YELLOW}Você pode executar manualmente depois:${NC}"
-        echo -e "${BLUE}  cd /var/www/work-with-us-webdb/backend${NC}"
-        echo -e "${BLUE}  npm run db:seed${NC}"
-    }
+    
+    if [ "$USE_CONTAINER_FALLBACK" = "true" ]; then
+        # Executar seed dentro do container (arquivos já foram copiados)
+        echo -e "${YELLOW}Executando seed dentro do container...${NC}"
+        
+        # Instalar tsx se necessário
+        echo -e "${YELLOW}📦 Instalando tsx dentro do container...${NC}"
+        docker exec -w /app/backend $MYSQL_CONTAINER sh -c "npm install tsx --save-dev" 2>/dev/null || true
+        
+        # Executar seed
+        if docker exec -w /app/backend $MYSQL_CONTAINER sh -c "npx tsx src/database/seed.ts"; then
+            echo -e "${GREEN}✅ Seed executado via container${NC}"
+        else
+            echo -e "${YELLOW}⚠️  Seed falhou via container, continuando deploy...${NC}"
+            echo -e "${YELLOW}Você pode executar manualmente depois:${NC}"
+            echo -e "${BLUE}  sudo ./run-prisma-in-container.sh${NC}"
+        fi
+        
+        # Limpar arquivos temporários do container
+        echo -e "${YELLOW}🧹 Limpando arquivos temporários do container...${NC}"
+        docker exec $MYSQL_CONTAINER sh -c "rm -rf /app/backend" 2>/dev/null || true
+    else
+        # Executar seed normalmente
+        npm run db:seed || {
+            echo -e "${YELLOW}⚠️  Seed falhou, mas continuando deploy...${NC}"
+            echo -e "${YELLOW}Você pode executar manualmente depois:${NC}"
+            echo -e "${BLUE}  cd /var/www/work-with-us-webdb/backend${NC}"
+            echo -e "${BLUE}  npm run db:seed${NC}"
+        }
+    fi
 else
     echo -e "${YELLOW}⚠️  Arquivo de seed não encontrado, pulando...${NC}"
 fi
