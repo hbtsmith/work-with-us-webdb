@@ -20,6 +20,11 @@ export default defineConfig(({ mode }) => {
     preview: {
       port: port,
       host: true,
+      allowedHosts: [
+        'trabalhos.reservejoias.com.br',
+        'localhost',
+        '127.0.0.1',
+      ],
     },
   }
 })
