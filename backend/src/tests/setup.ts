@@ -23,10 +23,11 @@ export async function setupTestDatabase() {
   const testDbName = `test_${randomBytes(8).toString('hex')}`;
   
   // Create test database
-  execSync(`mysql -u root -proot -e "CREATE DATABASE IF NOT EXISTS ${testDbName};"`);
+  const mysqlPassword = process.env['MYSQL_ROOT_PASSWORD'] || 'root';
+  execSync(`mysql -u root -p${mysqlPassword} -e "CREATE DATABASE IF NOT EXISTS ${testDbName};"`);
   
   // Update DATABASE_URL for tests
-  process.env['DATABASE_URL'] = `mysql://root:root@localhost:3306/${testDbName}`;
+  process.env['DATABASE_URL'] = `mysql://root:${mysqlPassword}@localhost:3306/${testDbName}`;
   
   // Generate Prisma client with new URL
   execSync('npx prisma generate', { stdio: 'inherit' });
@@ -43,7 +44,8 @@ export async function setupTestDatabase() {
 
 export async function cleanupTestDatabase(testDbName: string) {
   // Drop test database
-  execSync(`mysql -u root -proot -e "DROP DATABASE IF EXISTS ${testDbName};"`);
+  const mysqlPassword = process.env['MYSQL_ROOT_PASSWORD'] || 'root';
+  execSync(`mysql -u root -p${mysqlPassword} -e "DROP DATABASE IF EXISTS ${testDbName};"`);
 }
 
 export async function seedTestData() {
@@ -54,13 +56,18 @@ export async function seedTestData() {
   const adminEmail = process.env['ADMIN_EMAIL'] || 'admin@test.com';
   const adminPassword = process.env['ADMIN_PASSWORD'] || 'test123';
   
-  // Create test admin
+  // Create test admin (upsert to avoid conflicts)
   const hashedPassword = await import('bcryptjs').then(bcrypt => 
     bcrypt.hash(adminPassword, 12)
   );
   
-  const admin = await appPrisma.admin.create({
-    data: {
+  const admin = await appPrisma.admin.upsert({
+    where: { email: adminEmail },
+    update: {
+      password: hashedPassword,
+      isFirstLogin: false,
+    },
+    create: {
       email: adminEmail,
       password: hashedPassword,
       isFirstLogin: false,
@@ -273,11 +280,12 @@ export async function createTestJob() {
   const position = positions[0]; // Use the first position (Frontend)
   
   // Create test job using the position
+  const uniqueSlug = `vaga-desenvolvedor-frontend-${Date.now()}`;
   const job = await appPrisma.job.create({
     data: {
       title: 'Vaga de Desenvolvedor Frontend',
       description: 'Descrição da vaga de desenvolvedor frontend',
-      slug: 'vaga-desenvolvedor-frontend',
+      slug: uniqueSlug,
       positionId: position.id,
       isActive: true,
       requiresResume: false,
