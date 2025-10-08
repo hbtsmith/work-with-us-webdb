@@ -46,17 +46,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const login = async (credentials: LoginCredentials) => {
-    try {
-      const response = await apiService.login(credentials);
-      
-      if (response.success && response.data) {
-        localStorage.setItem('auth_token', response.data.token);
-        setUser(response.data.admin);
-      } else {
-        throw new Error(response.message || 'Login failed');
-      }
-    } catch (error) {
-      throw error;
+    const response = await apiService.login(credentials);
+    
+    if (response.success && response.data) {
+      localStorage.setItem('auth_token', response.data.token);
+      setUser(response.data.admin);
+    } else {
+      throw new Error(response.message || 'Login failed');
     }
   };
 

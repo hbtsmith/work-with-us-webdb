@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/hooks/useTranslation';
 import { apiService } from '@/services/api';
@@ -232,7 +232,7 @@ export function ApplicationPage() {
           </div>
         );
         
-      case 'MULTIPLE_CHOICE':
+      case 'MULTIPLE_CHOICE': {
         const selectedValues = (value as string[]) || [];
         return (
           <div key={question.id} className="space-y-3">
@@ -262,6 +262,7 @@ export function ApplicationPage() {
             {error && <p className="text-sm text-red-500">{error}</p>}
           </div>
         );
+      }
         
       default:
         return null;
