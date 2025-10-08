@@ -145,7 +145,7 @@ export function JobsPage() {
 
   useEffect(() => {
     fetchJobs();
-  }, [fetchJobs]);
+  }, [pagination.page, pagination.limit, sortBy, sortOrder]);
 
   const handleSort = (field: string) => {
     if (sortBy === field) {
@@ -687,7 +687,8 @@ export function JobsPage() {
     if (isModalOpen) {
       fetchPositions();
     }
-  }, [isModalOpen, fetchPositions]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isModalOpen]);
 
   // Filter positions based on search term
   useEffect(() => {

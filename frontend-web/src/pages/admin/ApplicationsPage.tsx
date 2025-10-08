@@ -87,11 +87,13 @@ export function ApplicationsPage() {
 
   useEffect(() => {
     fetchJobs();
-  }, [fetchJobs]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   
   useEffect(() => {
     fetchApplications();
-  }, [fetchApplications]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedJobFilter, pagination.page, pagination.limit]);
 
   const handleView = async (applicationId: string) => {
     try {
