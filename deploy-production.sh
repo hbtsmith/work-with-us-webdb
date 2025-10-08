@@ -154,6 +154,34 @@ chown -R $SERVICE_USER:$SERVICE_USER "$DEPLOY_DIR"
 echo -e "${GREEN}✅ Repositório clonado${NC}"
 
 # =============================================================================
+# 3. CONFIGURAR VARIÁVEIS DE AMBIENTE IMEDIATAMENTE
+# =============================================================================
+echo -e "${YELLOW}⚙️  Configurando variáveis de ambiente...${NC}"
+
+# Configurar .env do backend IMEDIATAMENTE após clone
+cat > "$BACKEND_DIR/.env" << EOF
+# Produção - Work With Us Backend
+DATABASE_URL="$DATABASE_URL"
+JWT_SECRET="$(openssl rand -base64 32)"
+NODE_ENV=production
+PORT=$BACKEND_PORT
+EOF
+
+# Configurar .env do frontend
+cat > "$FRONTEND_DIR/.env" << EOF
+# Produção - Work With Us Frontend
+VITE_PORT=$FRONTEND_PORT
+VITE_API_URL=http://localhost:$BACKEND_PORT
+VITE_NODE_ENV=production
+EOF
+
+# Definir permissões corretas
+chown $SERVICE_USER:$SERVICE_USER "$BACKEND_DIR/.env"
+chown $SERVICE_USER:$SERVICE_USER "$FRONTEND_DIR/.env"
+
+echo -e "${GREEN}✅ Variáveis de ambiente configuradas${NC}"
+
+# =============================================================================
 # 4. CONFIGURAR BACKEND
 # =============================================================================
 echo -e "${YELLOW}⚙️  Configurando backend...${NC}"
@@ -165,15 +193,6 @@ npm ci --production
 
 # Gerar Prisma client
 npx prisma generate
-
-# Configurar variáveis de ambiente
-cat > .env << EOF
-# Produção - Work With Us Backend
-DATABASE_URL="$DATABASE_URL"
-JWT_SECRET="$(openssl rand -base64 32)"
-NODE_ENV=production
-PORT=$BACKEND_PORT
-EOF
 
 # Criar banco de dados se não existir
 echo -e "${YELLOW}Criando banco de dados...${NC}"
@@ -196,19 +215,17 @@ else
     echo -e "${YELLOW}Continuando com o deploy...${NC}"
 fi
 
-# Executar seed se necessário (após .env estar configurado)
+# Executar seed imediatamente após configuração do banco
 if [ -f "src/database/seed.ts" ]; then
     echo -e "${YELLOW}Executando seed do banco...${NC}"
-    # Verificar se .env existe e tem DATABASE_URL
-    if [ -f ".env" ] && grep -q "DATABASE_URL" .env; then
-        echo -e "${GREEN}✅ Arquivo .env configurado, executando seed...${NC}"
-        npm run db:seed || echo "Seed falhou, continuando..."
-    else
-        echo -e "${YELLOW}⚠️  Arquivo .env não encontrado ou incompleto, pulando seed...${NC}"
+    npm run db:seed || {
+        echo -e "${YELLOW}⚠️  Seed falhou, mas continuando deploy...${NC}"
         echo -e "${YELLOW}Você pode executar manualmente depois:${NC}"
         echo -e "${BLUE}  cd /var/www/work-with-us-webdb/backend${NC}"
         echo -e "${BLUE}  npm run db:seed${NC}"
-    fi
+    }
+else
+    echo -e "${YELLOW}⚠️  Arquivo de seed não encontrado, pulando...${NC}"
 fi
 
 echo -e "${GREEN}✅ Backend configurado${NC}"
@@ -222,14 +239,6 @@ cd "$FRONTEND_DIR"
 
 # Instalar dependências
 npm ci
-
-# Configurar variáveis de ambiente para produção
-cat > .env << EOF
-# Produção - Work With Us Frontend
-VITE_PORT=$FRONTEND_PORT
-VITE_API_URL=http://localhost:$BACKEND_PORT
-VITE_NODE_ENV=production
-EOF
 
 # Build do frontend
 echo -e "${YELLOW}Fazendo build do frontend...${NC}"
