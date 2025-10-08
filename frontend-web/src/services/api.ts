@@ -10,10 +10,10 @@ class ApiService {
     
     // DEBUG: Log temporário para verificar variável de ambiente
     console.log('🔍 DEBUG API URL:', {
-      'import.meta.env.VITE_API_URL': import.meta.env.VITE_API_URL,
-      'apiUrl final': apiUrl,
-      'NODE_ENV': import.meta.env.MODE,
-      'todas as env vars': import.meta.env
+      viteApiUrl: import.meta.env.VITE_API_URL,
+      apiUrlFinal: apiUrl,
+      nodeEnv: import.meta.env.MODE,
+      allEnvVars: import.meta.env
     });
 
     this.api = axios.create({
