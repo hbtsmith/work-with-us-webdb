@@ -40,7 +40,7 @@ for i in "${!TESTS[@]}"; do
     echo -e "${BLUE}[$TEST_NUM/$TOTAL_TESTS]${NC} Executando: $TEST_NAME"
     echo "----------------------------------------"
     
-    if ./src/tests/scripts/quick-test.sh "$TEST_NAME" > /dev/null 2>&1; then
+    if ./src/tests/scripts/quick-e2e-test.sh "$TEST_NAME" > /dev/null 2>&1; then
         echo -e "${GREEN}✅ $TEST_NAME - PASSOU${NC}"
         PASSED=$((PASSED + 1))
     else
