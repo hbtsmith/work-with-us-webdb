@@ -6,9 +6,12 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "dev:nodemon": "nodemon --exec tsx src/server.ts",
+    "dev:script": "./scripts/start-dev.sh",
     "build": "tsc",
+    "build:deploy": "./scripts/build-and-deploy.sh",
     "start": "tsx src/server.ts",
     "start:node": "node dist/server.js",
+    "start:prod": "./scripts/start-production.sh",
     "test": "vitest",
     "test:all": "npm run test:controllers && npm run test:services && npm run test:utils && npm run test:e2e",
     "test:controllers": "./src/tests/scripts/run-all-controller-tests.sh",
