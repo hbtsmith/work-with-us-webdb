@@ -82,7 +82,7 @@ echo -e "${BLUE}Tamanho do build: $(du -sh dist | cut -f1)${NC}"
 echo -e "${YELLOW}🚀 Iniciando servidor de preview...${NC}"
 
 # Obter porta do .env ou usar padrão
-PORT=${VITE_PORT:-3000}
+PORT=${VITE_PORT:-3002}
 
 echo -e "${GREEN}✅ Servidor iniciando na porta ${PORT}...${NC}"
 echo -e "${BLUE}Preview URL: http://localhost:${PORT}${NC}"

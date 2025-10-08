@@ -7,6 +7,14 @@ class ApiService {
   constructor() {
     // Usar a mesma configuração do constants/index.ts
     const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+    
+    // DEBUG: Log temporário para verificar variável de ambiente
+    console.log('🔍 DEBUG API URL:', {
+      'import.meta.env.VITE_API_URL': import.meta.env.VITE_API_URL,
+      'apiUrl final': apiUrl,
+      'NODE_ENV': import.meta.env.MODE,
+      'todas as env vars': import.meta.env
+    });
 
     this.api = axios.create({
       baseURL: `${apiUrl}/api`,
