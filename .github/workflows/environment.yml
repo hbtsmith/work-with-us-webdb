@@ -18,6 +18,11 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event.inputs.environment == 'staging'
     
+    env:
+      DATABASE_URL: mysql://root:password@localhost:3306/work_with_us_staging_db
+      JWT_SECRET: staging-jwt-secret-key
+      NODE_ENV: staging
+    
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -69,6 +74,11 @@ jobs:
     name: Setup Production Environment
     runs-on: ubuntu-latest
     if: github.event.inputs.environment == 'production'
+    
+    env:
+      DATABASE_URL: mysql://root:password@localhost:3306/work_with_us_production_db
+      JWT_SECRET: production-jwt-secret-key
+      NODE_ENV: production
     
     steps:
     - name: Checkout code
