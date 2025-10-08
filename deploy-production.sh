@@ -119,10 +119,15 @@ echo -e "${GREEN}✅ Pré-requisitos verificados${NC}"
 # =============================================================================
 echo -e "${YELLOW}📦 Instalando dependências adicionais...${NC}"
 
-# Instalar PM2 para gerenciamento de processos Node.js
+# Instalar PM2 e tsx para gerenciamento de processos Node.js
 if ! command -v pm2 &> /dev/null; then
     echo -e "${YELLOW}Instalando PM2...${NC}"
     npm install -g pm2
+fi
+
+if ! command -v tsx &> /dev/null; then
+    echo -e "${YELLOW}Instalando tsx...${NC}"
+    npm install -g tsx
 fi
 
 # Instalar dependências do sistema
@@ -232,18 +237,47 @@ echo -e "${YELLOW}🔧 Criando serviços PM2...${NC}"
 sudo -u $SERVICE_USER pm2 delete work-with-us-backend 2>/dev/null || true
 sudo -u $SERVICE_USER pm2 delete work-with-us-frontend 2>/dev/null || true
 
+# Criar scripts auxiliares para PM2
+echo -e "${YELLOW}Criando scripts auxiliares...${NC}"
+
+# Script para backend
+cat > "$DEPLOY_DIR/start-backend.sh" << 'EOF'
+#!/bin/bash
+cd /var/www/work-with-us-webdb/backend
+if command -v tsx &> /dev/null; then
+    exec tsx src/server.ts
+else
+    npm run build
+    exec node dist/server.js
+fi
+EOF
+
+# Script para frontend
+cat > "$DEPLOY_DIR/start-frontend.sh" << 'EOF'
+#!/bin/bash
+cd /var/www/work-with-us-webdb/frontend-web
+if [ ! -d "dist" ]; then
+    npm run build
+fi
+exec npm run preview
+EOF
+
+# Tornar scripts executáveis
+chmod +x "$DEPLOY_DIR/start-backend.sh"
+chmod +x "$DEPLOY_DIR/start-frontend.sh"
+chown $SERVICE_USER:$SERVICE_USER "$DEPLOY_DIR/start-backend.sh"
+chown $SERVICE_USER:$SERVICE_USER "$DEPLOY_DIR/start-frontend.sh"
+
 # Criar serviço do backend
-sudo -u $SERVICE_USER pm2 start "$BACKEND_DIR/src/server.ts" \
+echo -e "${YELLOW}Criando serviço do backend...${NC}"
+sudo -u $SERVICE_USER pm2 start "$DEPLOY_DIR/start-backend.sh" \
     --name "work-with-us-backend" \
-    --interpreter "tsx" \
-    --cwd "$BACKEND_DIR" \
     --env production
 
 # Criar serviço do frontend
-sudo -u $SERVICE_USER pm2 start "npm" \
+echo -e "${YELLOW}Criando serviço do frontend...${NC}"
+sudo -u $SERVICE_USER pm2 start "$DEPLOY_DIR/start-frontend.sh" \
     --name "work-with-us-frontend" \
-    -- run preview \
-    --cwd "$FRONTEND_DIR" \
     --env production
 
 # Salvar configuração PM2
