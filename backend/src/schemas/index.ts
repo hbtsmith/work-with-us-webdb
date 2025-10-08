@@ -105,6 +105,7 @@ export const updateJobSchema = z.object({
     .regex(/^[a-z0-9-]+$/, error('validation.invalid_slug'))
     .optional(),
   requiresResume: z.boolean().optional(),
+  isActive: z.boolean().optional(),
   positionId: z.string().cuid(error('validation.invalid_position_id')).optional(),
 });
 

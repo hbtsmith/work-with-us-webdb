@@ -51,7 +51,7 @@ export function ApplicationsPage() {
         setJobs(response.data || []);
       }
     } catch (err: any) {
-      console.error('Failed to fetch jobs:', err);
+      // Failed to fetch jobs - handled by UI state
     }
   }, []);
 

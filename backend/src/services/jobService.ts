@@ -131,6 +131,7 @@ export class JobService {
       description: updateData.description,
       slug: updateData.slug,
       requiresResume: updateData.requiresResume,
+      isActive: updateData.isActive,
       positionId: updateData.positionId,
     };
     

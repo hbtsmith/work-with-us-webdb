@@ -71,7 +71,7 @@ export function DashboardPage() {
         });
       }
     } catch (err) {
-      console.error('Error fetching dashboard data:', err);
+      // Error fetching dashboard data - handled by UI state
       setError('Failed to load dashboard data');
     } finally {
       setLoading(false);

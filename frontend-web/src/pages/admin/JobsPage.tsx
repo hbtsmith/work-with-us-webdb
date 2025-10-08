@@ -199,7 +199,7 @@ export function JobsPage() {
       slug: job.slug,
       requiresResume: job.requiresResume,
       isActive: job.isActive,
-      positionId: job.position.id,
+      positionId: job.position?.id || '',
     });
     setFormErrors({});
     setIsModalOpen(true);
@@ -263,7 +263,7 @@ export function JobsPage() {
         setPositions(response.data || []);
       }
     } catch (err) {
-      console.error('Error fetching positions:', err);
+      // Error fetching positions - handled by UI state
     } finally {
       setLoadingPositions(false);
     }
@@ -278,7 +278,7 @@ export function JobsPage() {
         setQuestions(response.data.questions || []);
       }
     } catch (err) {
-      console.error('Error fetching questions:', err);
+      // Error fetching questions - handled by UI state
       setQuestions([]);
     } finally {
       setLoadingQuestions(false);
@@ -749,7 +749,7 @@ export function JobsPage() {
         year: 'numeric'
       });
     } catch (error) {
-      console.error('Error formatting date:', error);
+      // Error formatting date - return fallback
       return '-';
     }
   };
