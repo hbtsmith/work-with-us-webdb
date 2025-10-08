@@ -196,10 +196,19 @@ else
     echo -e "${YELLOW}Continuando com o deploy...${NC}"
 fi
 
-# Executar seed se necessário
+# Executar seed se necessário (após .env estar configurado)
 if [ -f "src/database/seed.ts" ]; then
     echo -e "${YELLOW}Executando seed do banco...${NC}"
-    npm run db:seed || echo "Seed falhou, continuando..."
+    # Verificar se .env existe e tem DATABASE_URL
+    if [ -f ".env" ] && grep -q "DATABASE_URL" .env; then
+        echo -e "${GREEN}✅ Arquivo .env configurado, executando seed...${NC}"
+        npm run db:seed || echo "Seed falhou, continuando..."
+    else
+        echo -e "${YELLOW}⚠️  Arquivo .env não encontrado ou incompleto, pulando seed...${NC}"
+        echo -e "${YELLOW}Você pode executar manualmente depois:${NC}"
+        echo -e "${BLUE}  cd /var/www/work-with-us-webdb/backend${NC}"
+        echo -e "${BLUE}  npm run db:seed${NC}"
+    fi
 fi
 
 echo -e "${GREEN}✅ Backend configurado${NC}"
