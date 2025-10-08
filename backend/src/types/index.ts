@@ -64,6 +64,7 @@ export interface CreateJobData {
   description: string;
   slug: string;
   requiresResume: boolean;
+  isActive?: boolean;
   positionId: string;
 }
 
