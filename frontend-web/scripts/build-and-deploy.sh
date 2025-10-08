@@ -106,7 +106,7 @@ fi
 echo -e "${YELLOW}🔨 Compilando e fazendo build...${NC}"
 
 # Usar modo production para garantir que .env.production seja carregado
-npm run build --mode production
+npm run build:prod
 
 echo -e "${GREEN}✅ Build concluído com sucesso${NC}"
 

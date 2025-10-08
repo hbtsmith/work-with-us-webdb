@@ -89,4 +89,4 @@ echo -e "${BLUE}Preview URL: http://localhost:${PORT}${NC}"
 echo -e "${YELLOW}Pressione Ctrl+C para parar${NC}"
 
 # Iniciar preview com modo production
-exec npm run preview --mode production
+exec npm run preview:prod
