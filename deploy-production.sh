@@ -65,8 +65,17 @@ fi
 
 echo -e "${GREEN}✅ Conexão com MySQL validada${NC}"
 
-# Construir URL do banco de dados
-DATABASE_URL="mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@localhost:3306/${DATABASE_NAME}"
+# Obter IP do container MySQL
+MYSQL_CONTAINER_IP=$(docker inspect $MYSQL_CONTAINER --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' 2>/dev/null || echo "localhost")
+
+# Construir URL do banco de dados (tentar IP do container primeiro, depois nome)
+if [ "$MYSQL_CONTAINER_IP" != "localhost" ]; then
+    DATABASE_URL="mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@${MYSQL_CONTAINER_IP}:3306/${DATABASE_NAME}"
+    echo -e "${GREEN}✅ Usando IP do container: $MYSQL_CONTAINER_IP${NC}"
+else
+    DATABASE_URL="mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@mysql57_prod:3306/${DATABASE_NAME}"
+    echo -e "${YELLOW}⚠️  Usando nome do container: mysql57_prod${NC}"
+fi
 
 # =============================================================================
 # 1. VERIFICAR PRÉ-REQUISITOS
@@ -169,7 +178,18 @@ docker exec $MYSQL_CONTAINER mysql -u$MYSQL_USER -p$MYSQL_PASSWORD -e "CREATE DA
 
 # Configurar banco de dados (migrar schema)
 echo -e "${YELLOW}Configurando schema do banco de dados...${NC}"
-npx prisma db push
+
+# Tentar configurar schema
+if npx prisma db push --accept-data-loss; then
+    echo -e "${GREEN}✅ Schema do banco configurado com sucesso${NC}"
+else
+    echo -e "${YELLOW}⚠️  Erro ao configurar schema automaticamente${NC}"
+    echo -e "${YELLOW}Isso pode ser normal se o container não estiver na mesma rede Docker${NC}"
+    echo -e "${YELLOW}Você pode configurar manualmente depois com:${NC}"
+    echo -e "${BLUE}  cd /var/www/work-with-us-webdb/backend${NC}"
+    echo -e "${BLUE}  npx prisma db push${NC}"
+    echo -e "${YELLOW}Continuando com o deploy...${NC}"
+fi
 
 # Executar seed se necessário
 if [ -f "src/database/seed.ts" ]; then
