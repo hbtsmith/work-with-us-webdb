@@ -82,31 +82,22 @@ npx prisma generate
 echo -e "${GREEN}✅ Prisma Client gerado${NC}"
 
 # =============================================================================
-# 4. VERIFICAR CONEXÃO COM BANCO DE DADOS
+# 4. APLICAR MIGRATIONS (SEGURO - NÃO DELETA DADOS)
 # =============================================================================
-echo -e "${YELLOW}🔍 Verificando conexão com banco de dados...${NC}"
+echo -e "${YELLOW}🔄 Aplicando migrations do banco de dados...${NC}"
 
-if npx prisma db execute --stdin <<< "SELECT 1;" > /dev/null 2>&1; then
-    echo -e "${GREEN}✅ Conexão com banco de dados OK${NC}"
+# Usar db push em produção (aplica mudanças sem criar arquivos de migration)
+# --skip-generate porque já geramos o client acima
+if npx prisma db push --skip-generate --accept-data-loss=false > /dev/null 2>&1; then
+    echo -e "${GREEN}✅ Migrations aplicadas com sucesso${NC}"
 else
-    echo -e "${YELLOW}⚠️  Não foi possível verificar conexão com banco${NC}"
+    echo -e "${YELLOW}⚠️  Não foi possível aplicar migrations${NC}"
+    echo -e "${YELLOW}Verifique se o banco de dados está acessível${NC}"
     echo -e "${YELLOW}Continuando mesmo assim...${NC}"
 fi
 
 # =============================================================================
-# 5. COMPILAR TYPESCRIPT (OPCIONAL)
-# =============================================================================
-echo -e "${YELLOW}🔨 Compilando TypeScript...${NC}"
-
-if npm run build > /dev/null 2>&1; then
-    echo -e "${GREEN}✅ TypeScript compilado com sucesso${NC}"
-else
-    echo -e "${YELLOW}⚠️  Erro ao compilar TypeScript${NC}"
-    echo -e "${YELLOW}Continuando com tsx...${NC}"
-fi
-
-# =============================================================================
-# 6. INICIAR SERVIDOR
+# 5. INICIAR SERVIDOR
 # =============================================================================
 echo -e "${YELLOW}🚀 Iniciando servidor...${NC}"
 

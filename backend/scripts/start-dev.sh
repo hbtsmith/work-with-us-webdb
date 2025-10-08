@@ -29,15 +29,11 @@ echo -e "${YELLOW}📁 Diretório: $BACKEND_DIR${NC}"
 # =============================================================================
 # 1. VERIFICAR VARIÁVEIS DE AMBIENTE
 # =============================================================================
-echo -e "${YELLOW}🔍 Verificando variáveis de ambiente...${NC}"
+echo -e "${YELLOW}🔍 Verificando arquivo .env...${NC}"
 
 if [ ! -f ".env" ]; then
     echo -e "${RED}❌ Arquivo .env não encontrado!${NC}"
-    echo -e "${YELLOW}Crie o arquivo .env com as seguintes variáveis:${NC}"
-    echo -e "${BLUE}  DATABASE_URL=mysql://user:password@host:3306/database${NC}"
-    echo -e "${BLUE}  JWT_SECRET=your-secret-key${NC}"
-    echo -e "${BLUE}  NODE_ENV=development${NC}"
-    echo -e "${BLUE}  PORT=3001${NC}"
+    echo -e "${YELLOW}Por favor, crie o arquivo .env antes de continuar${NC}"
     exit 1
 fi
 

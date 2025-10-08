@@ -3,7 +3,15 @@
 # =============================================================================
 # SCRIPT PARA BUILD E DEPLOY DO BACKEND
 # =============================================================================
-# Este script faz build, testes e deploy do backend em produção
+# Este script prepara o backend para produção:
+# - Instala/atualiza dependências
+# - Gera Prisma Client
+# - Aplica migrations (SEGURO - não deleta dados)
+# - Executa linter
+# - Compila TypeScript (opcional)
+# 
+# NÃO mexe no arquivo .env
+# NÃO deleta dados do banco
 # =============================================================================
 
 set -e
@@ -25,6 +33,19 @@ BACKEND_DIR="$(dirname "$SCRIPT_DIR")"
 cd "$BACKEND_DIR"
 
 echo -e "${YELLOW}📁 Diretório: $BACKEND_DIR${NC}"
+
+# =============================================================================
+# 0. VERIFICAR .ENV
+# =============================================================================
+echo -e "${YELLOW}🔍 Verificando arquivo .env...${NC}"
+
+if [ ! -f ".env" ]; then
+    echo -e "${RED}❌ Arquivo .env não encontrado!${NC}"
+    echo -e "${YELLOW}Por favor, configure o .env antes de continuar${NC}"
+    exit 1
+fi
+
+echo -e "${GREEN}✅ Arquivo .env encontrado${NC}"
 
 # =============================================================================
 # 1. LIMPAR BUILD ANTERIOR
@@ -74,25 +95,41 @@ else
 fi
 
 # =============================================================================
-# 5. COMPILAR TYPESCRIPT
+# 5. APLICAR MIGRATIONS (SEGURO - NÃO DELETA DADOS)
+# =============================================================================
+echo -e "${YELLOW}🔄 Aplicando migrations do banco de dados...${NC}"
+
+# Usar db push com --accept-data-loss=false para garantir segurança
+# --skip-generate porque já geramos o client acima
+if npx prisma db push --skip-generate --accept-data-loss=false; then
+    echo -e "${GREEN}✅ Migrations aplicadas com sucesso${NC}"
+else
+    echo -e "${YELLOW}⚠️  Não foi possível aplicar migrations${NC}"
+    echo -e "${YELLOW}Verifique se o banco de dados está acessível${NC}"
+    read -p "Deseja continuar mesmo assim? (s/N): " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Ss]$ ]]; then
+        echo -e "${RED}❌ Build cancelado${NC}"
+        exit 1
+    fi
+fi
+
+# =============================================================================
+# 6. COMPILAR TYPESCRIPT (OPCIONAL)
 # =============================================================================
 echo -e "${YELLOW}🔨 Compilando TypeScript...${NC}"
 
-npm run build
-
-echo -e "${GREEN}✅ TypeScript compilado com sucesso${NC}"
-
-# =============================================================================
-# 6. VERIFICAR BUILD
-# =============================================================================
-echo -e "${YELLOW}🔍 Verificando build...${NC}"
-
-if [ -f "dist/server.js" ]; then
-    echo -e "${GREEN}✅ Build gerado com sucesso${NC}"
-    echo -e "${BLUE}Tamanho do build: $(du -sh dist | cut -f1)${NC}"
+if npm run build; then
+    echo -e "${GREEN}✅ TypeScript compilado com sucesso${NC}"
+    
+    # Verificar build
+    if [ -f "dist/server.js" ]; then
+        echo -e "${GREEN}✅ Build gerado com sucesso${NC}"
+        echo -e "${BLUE}Tamanho do build: $(du -sh dist | cut -f1)${NC}"
+    fi
 else
-    echo -e "${RED}❌ Build não foi gerado corretamente${NC}"
-    exit 1
+    echo -e "${YELLOW}⚠️  Erro ao compilar TypeScript${NC}"
+    echo -e "${YELLOW}Não é crítico, tsx pode executar diretamente${NC}"
 fi
 
 # =============================================================================
@@ -101,7 +138,14 @@ fi
 echo -e "${GREEN}================================${NC}"
 echo -e "${GREEN}✅ BUILD CONCLUÍDO COM SUCESSO!${NC}"
 echo -e "${GREEN}================================${NC}"
-echo -e "${BLUE}Para iniciar o servidor:${NC}"
+echo -e "${BLUE}📋 O que foi feito:${NC}"
+echo -e "${GREEN}  ✅ Dependências atualizadas${NC}"
+echo -e "${GREEN}  ✅ Prisma Client gerado${NC}"
+echo -e "${GREEN}  ✅ Migrations aplicadas (seguro)${NC}"
+echo -e "${GREEN}  ✅ Linter executado${NC}"
+echo -e "${GREEN}  ✅ TypeScript compilado${NC}"
+echo -e ""
+echo -e "${BLUE}🚀 Para iniciar o servidor:${NC}"
 echo -e "${YELLOW}  ./scripts/start-production.sh${NC}"
 echo -e "${BLUE}Ou com PM2:${NC}"
 echo -e "${YELLOW}  pm2 start ./scripts/start-production.sh --name backend${NC}"

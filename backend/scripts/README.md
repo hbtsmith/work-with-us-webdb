@@ -9,12 +9,11 @@ Este diretório contém scripts para facilitar o desenvolvimento, build e deploy
 Script completo para iniciar o backend em produção.
 
 **O que faz:**
-- ✅ Verifica variáveis de ambiente (.env)
-- ✅ Instala dependências
+- ✅ Verifica se .env existe (NÃO cria ou edita)
+- ✅ Instala/atualiza dependências
 - ✅ Gera Prisma Client
-- ✅ Verifica conexão com banco de dados
-- ✅ Compila TypeScript
-- ✅ Inicia servidor (tsx ou node)
+- ✅ Aplica migrations (SEGURO - não deleta dados)
+- ✅ Inicia servidor com tsx (resolve aliases @/)
 
 **Como usar:**
 ```bash
@@ -66,12 +65,19 @@ npm run dev
 Script para fazer build completo e preparar para deploy.
 
 **O que faz:**
+- ✅ Verifica se .env existe (NÃO cria ou edita)
 - ✅ Limpa build anterior
-- ✅ Instala dependências
+- ✅ Instala/atualiza dependências
 - ✅ Gera Prisma Client
+- ✅ Aplica migrations (SEGURO - não deleta dados)
 - ✅ Executa linter
 - ✅ Compila TypeScript
 - ✅ Verifica build gerado
+
+**⚠️ IMPORTANTE:**
+- NÃO mexe no arquivo .env
+- NÃO deleta dados do banco
+- Usa `--accept-data-loss=false` para segurança
 
 **Como usar:**
 ```bash
@@ -93,6 +99,9 @@ Script para fazer build completo e preparar para deploy.
 
 ### Arquivo `.env` Necessário
 
+**⚠️ IMPORTANTE:** Os scripts **NÃO criam nem editam** o arquivo `.env`.  
+Você deve criar e configurar o `.env` manualmente antes de executar os scripts.
+
 Todos os scripts requerem um arquivo `.env` na raiz do backend:
 
 ```env
@@ -109,6 +118,14 @@ PORT=3001
 # Opcional
 LOG_LEVEL=info
 ```
+
+### Segurança do Banco de Dados
+
+**✅ Os scripts são SEGUROS:**
+- Usam `prisma db push --accept-data-loss=false`
+- NÃO deletam dados existentes
+- NÃO fazem reset do banco
+- Apenas aplicam mudanças de schema necessárias
 
 ### Permissões
 
