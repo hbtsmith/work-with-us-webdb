@@ -93,8 +93,6 @@ jobs:
       run: |
         cd backend
         npm run test:all
-        
-        fail_ci_if_error: false
 
   build:
     name: Build Application
