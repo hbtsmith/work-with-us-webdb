@@ -88,5 +88,5 @@ echo -e "${GREEN}✅ Servidor iniciando na porta ${PORT}...${NC}"
 echo -e "${BLUE}Preview URL: http://localhost:${PORT}${NC}"
 echo -e "${YELLOW}Pressione Ctrl+C para parar${NC}"
 
-# Iniciar preview
-exec npm run preview
+# Iniciar preview com modo production
+exec npm run preview --mode production
