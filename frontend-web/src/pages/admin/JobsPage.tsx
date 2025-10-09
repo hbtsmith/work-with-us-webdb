@@ -927,7 +927,10 @@ export function JobsPage() {
                           <Edit className="h-4 w-4" />
                         </button>
                         <button
-                          onClick={() => showConfirmation('delete', String(t('pages.jobs.confirmDelete', { title: job.title })))}
+                          onClick={() => {
+                            setEditingJob(job);
+                            showConfirmation('delete', String(t('pages.jobs.confirmDelete', { title: job.title })));
+                          }}
                           className="text-accent-danger hover:text-red-700"
                           title={String(t('pages.jobs.delete'))}
                         >
