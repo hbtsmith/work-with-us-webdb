@@ -108,7 +108,7 @@ Todos os scripts requerem um arquivo `.env` na raiz do frontend:
 VITE_API_URL=http://localhost:3001
 
 # Porta do servidor
-VITE_PORT=3000
+VITE_PORT=3002
 
 # Ambiente
 VITE_NODE_ENV=production  # ou development
@@ -191,7 +191,7 @@ pm2 restart frontend
 **Solução:** Crie o arquivo `.env`:
 ```bash
 echo 'VITE_API_URL=http://localhost:3001' > .env
-echo 'VITE_PORT=3000' >> .env
+echo 'VITE_PORT=3002' >> .env
 echo 'VITE_NODE_ENV=production' >> .env
 ```
 
@@ -220,7 +220,7 @@ VITE_PORT=3002
 
 ```bash
 # Verificar porta
-lsof -i :3000
+lsof -i :3002
 
 # Verificar build
 ls -la dist/
@@ -392,7 +392,7 @@ dist/
 **✅ Seguro:**
 ```env
 VITE_API_URL=http://localhost:3001
-VITE_PORT=3000
+VITE_PORT=3002
 ```
 
 **❌ INSEGURO:**

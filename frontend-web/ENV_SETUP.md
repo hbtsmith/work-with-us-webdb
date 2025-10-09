@@ -4,7 +4,7 @@
 
 ### **Porta do Servidor:**
 - **Variável**: `VITE_PORT`
-- **Padrão**: `3000`
+- **Padrão**: `3002`
 - **Produção**: `3002`
 
 ### **URL da API:**
@@ -22,7 +22,7 @@
 
 ### **Desenvolvimento Local:**
 ```bash
-# Usar porta padrão (3000)
+# Usar porta padrão (3002)
 npm run dev
 
 # Usar porta personalizada
@@ -44,7 +44,7 @@ npm run build:prod
 
 ### **`.env` (Desenvolvimento)**
 ```env
-VITE_PORT=3000
+VITE_PORT=3002
 VITE_API_URL=http://localhost:3001
 VITE_NODE_ENV=development
 ```
@@ -58,7 +58,7 @@ VITE_NODE_ENV=production
 
 ### **`.env.example` (Template)**
 ```env
-VITE_PORT=3000
+VITE_PORT=3002
 VITE_API_URL=http://localhost:3001
 VITE_NODE_ENV=development
 ```
@@ -101,7 +101,7 @@ VITE_NODE_ENV=development
 
 ### **Desenvolvimento:**
 ```bash
-# Porta 3000 (padrão)
+# Porta 3002 (padrão)
 npm run dev
 
 # Porta 3002 (personalizada)

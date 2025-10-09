@@ -26,7 +26,7 @@ export const toastUtils = {
 
   info: (message: string) => {
     toast(message, {
-      duration: 3000,
+      duration: 3002,
       position: 'top-right',
       icon: 'ℹ️',
     });
