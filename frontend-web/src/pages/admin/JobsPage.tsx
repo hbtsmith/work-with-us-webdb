@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { apiService } from '@/services/api';
 import { Job, Question, Position } from '@/types';
-import { Plus, Edit, Trash2, GripVertical, ChevronDown, Search, X } from 'lucide-react';
+import { Plus, Edit, Trash2, GripVertical, ChevronDown, Search, X, ExternalLink } from 'lucide-react';
 import { Layout } from '@/components/Layout';
 import { toastUtils } from '@/utils/toast';
 
@@ -919,6 +919,13 @@ export function JobsPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-secondary">
                       <div className="flex space-x-2">
+                        <button
+                          onClick={() => window.open(`/application/${job.slug}`, '_blank')}
+                          className="text-blue-600 hover:text-blue-800"
+                          title={String(t('pages.jobs.viewApplication'))}
+                        >
+                          <ExternalLink className="h-4 w-4" />
+                        </button>
                         <button
                           onClick={() => openEditModal(job)}
                           className="text-accent-primary hover:text-accent-primary-hover"

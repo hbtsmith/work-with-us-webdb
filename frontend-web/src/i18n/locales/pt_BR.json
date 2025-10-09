@@ -100,6 +100,7 @@
       "create": "Criar Vaga",
       "edit": "Editar Vaga",
       "delete": "Excluir Vaga",
+      "viewApplication": "Ver página de aplicação",
       "list": "Lista de Vagas",
       "noJobs": "Nenhuma vaga encontrada",
       "position": "Cargo",
